@@ -1,0 +1,254 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand */
+  --color-navy-50: #f4f7fb;
+  --color-navy-100: #e6edf6;
+  --color-navy-200: #c7d4e6;
+  --color-navy-300: #94a9c8;
+  --color-navy-400: #5e779e;
+  --color-navy-500: #3a547d;
+  --color-navy-600: #233e63;
+  --color-navy-700: #16304f;
+  --color-navy-800: #0e2342;
+  --color-navy-900: #0b1f3a;
+  --color-navy-950: #061327;
+
+  --color-brass-50: #fbf7ec;
+  --color-brass-100: #f6ecca;
+  --color-brass-200: #ecd793;
+  --color-brass-300: #dfbd60;
+  --color-brass-400: #d2a83c;
+  --color-brass-500: #c9a24a;
+  --color-brass-600: #a98230;
+  --color-brass-700: #876224;
+  --color-brass-800: #66471c;
+  --color-brass-900: #3f2c11;
+
+  --color-emergency-50: #fef2f3;
+  --color-emergency-500: #d7263d;
+  --color-emergency-600: #b81b30;
+  --color-emergency-700: #971525;
+
+  /* Electric — sourced from the lightning bolt in the Lyons logo */
+  --color-electric-50: #eef3fe;
+  --color-electric-100: #d8e3fc;
+  --color-electric-200: #b1c5f8;
+  --color-electric-300: #7d9ef3;
+  --color-electric-400: #4a78ec;
+  --color-electric-500: #2e6be5;
+  --color-electric-600: #1a5bd7;
+  --color-electric-700: #1144a8;
+  --color-electric-800: #0e377f;
+  --color-electric-900: #0c2c63;
+  --color-electric-950: #06183a;
+
+  --color-cream: #f7f5ef;
+  --color-cream-100: #f1ede2;
+  --color-ink: #1a1a1a;
+  --color-ink-soft: #2c2c2c;
+  --color-muted: #6b7280;
+
+  /* Type */
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-industrial);
+  --font-prose: var(--font-fraunces);
+
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.5rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+  --text-7xl: 4.5rem;
+
+  /* Shadow with hue-shifted navy, not pure black */
+  --shadow-soft: 0 1px 2px rgba(11, 31, 58, 0.06), 0 8px 24px rgba(11, 31, 58, 0.08);
+  --shadow-pop: 0 4px 12px rgba(11, 31, 58, 0.10), 0 16px 48px rgba(11, 31, 58, 0.16);
+  --shadow-emergency: 0 8px 32px rgba(215, 38, 61, 0.32);
+}
+
+html {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--color-cream);
+  min-height: 100dvh;
+}
+
+::selection {
+  background: var(--color-navy-900);
+  color: var(--color-cream);
+}
+
+/* Display headings default to the industrial sans matching the logo */
+h1, h2, h3 {
+  font-family: var(--font-industrial), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 5.5vw + 1rem, 5rem);
+  line-height: 0.95;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+
+h2 {
+  font-size: clamp(1.875rem, 2.8vw + 1rem, 3.25rem);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+h3 {
+  font-size: clamp(1.25rem, 1vw + 0.875rem, 1.625rem);
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+/* Opt back into the warm serif for prose-heavy moments — used on the mission
+ * quote, about-page H2s, and resource article H2s. Keeps the family-business
+ * warmth where the page is asking the reader to slow down and read. */
+.heading-prose,
+.heading-prose h1,
+.heading-prose h2,
+.heading-prose h3 {
+  font-family: var(--font-prose), ui-serif, Georgia, serif !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.015em !important;
+  text-transform: none !important;
+  line-height: 1.1 !important;
+}
+
+/* Legacy `.font-display` utility we used in iteration 1 referred to the warm
+ * serif. Map it to the prose font so existing usages still render correctly. */
+.font-display {
+  font-family: var(--font-prose), ui-serif, Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+.font-industrial {
+  font-family: var(--font-industrial), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+p, li {
+  line-height: 1.6;
+}
+
+/* Subtle texture on hero panels */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* Pulse for the emergency call dot */
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}
+
+.pulse-dot {
+  animation: pulseDot 1.8s ease-in-out infinite;
+}
+
+/* Ambient pulse for the chat launcher button */
+@keyframes ambientPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 162, 74, 0); }
+  50% { box-shadow: 0 0 0 12px rgba(201, 162, 74, 0.18); }
+}
+
+.ambient-pulse {
+  animation: ambientPulse 6s ease-in-out infinite;
+}
+
+/* Marquee animations */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes marqueeReverse {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+.animate-marquee {
+  animation: marquee var(--marquee-speed, 40s) linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marqueeReverse var(--marquee-speed, 40s) linear infinite;
+}
+
+/* Slow rotate for ambient decorative bits */
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+
+.spin-slow {
+  animation: spinSlow 24s linear infinite;
+}
+
+/* Honor reduced-motion: stop all motion + smooth-scroll for those who ask */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Chat panel mount animation handled in component via framer-motion */
+
+/* Don't break out of viewport on mobile when copy is long */
+.prose-lyons p {
+  font-size: 1.0625rem;
+  max-width: 68ch;
+}
+
+.prose-lyons h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose-lyons h3 {
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose-lyons ul {
+  margin-left: 1.25rem;
+  margin-top: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.prose-lyons li {
+  list-style-type: disc;
+  margin-bottom: 0.35rem;
+  font-size: 1.0625rem;
+  max-width: 64ch;
+}
+
+.prose-lyons p + p {
+  margin-top: 1rem;
+}

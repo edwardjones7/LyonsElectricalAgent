@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "frontend-design": {
+      "source": "julianoczkowski/designer-skills",
+      "sourceType": "github",
+      "skillPath": "frontend-design/SKILL.md",
+      "computedHash": "f29733021097cd63e0a6ce8d890cdbcb1fdacb7ee7e79fafe645b6db54aa82ad"
+    }
+  }
+}

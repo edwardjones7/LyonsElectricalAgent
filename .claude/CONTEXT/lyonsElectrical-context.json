@@ -1,0 +1,255 @@
+{
+    "version": "1.0",
+    "doc_type": "client_context",
+    "created_by": "Elenos",
+    "created_for": "Lyons Electrical Contractors, Inc.",
+    "primary_contact": {
+        "name": "Gene Goodman",
+        "role": "Operations Chief / Senior team member",
+        "phone": "(856) 895-9667 (main line, secondary direct number obtained during call)",
+        "first_call_date": "2026-04-29",
+        "discovery_call_date": "2026-04-30",
+        "demo_call_date": "2026-05-06 (scheduled, exact day TBD)",
+        "context_notes": "Gene came up multiple times in Google reviews as 'Operations Chief' and is described by customers as kind, efficient, and available. He is highly trusted by customers and has decision authority on operational matters. He referred to bringing the website project forward himself; deciding party but likely confirms with Arthur Carroll (owner) before final sign-off."
+    },
+    "business_overview": {
+        "legal_name": "Lyons Electrical Contractors, Inc.",
+        "dba_or_aliases": [
+            "Lyons Electric",
+            "Lyons Electrical"
+        ],
+        "industry": "Electrical contracting, residential & light commercial",
+        "primary_service_area": "Blackwood, NJ (HQ)",
+        "extended_service_area": [
+            "South Jersey (Cherry Hill, Mt. Laurel, Marlton, Burlington, Willingboro, Beverly, Riverside, Mt. Holly, Medford Lakes, Berlin, Sicklerville, Blackwood, Williamstown, Glassboro, Swedesboro, Mullica Hill, Salem, Millville, Vineland, Elmer, Cape May, Voorhees, Camden, Wenonah, Bellmawr, Carneys Point, Marlboro)",
+            "Parts of PA (Fallsington, Newtown, Haverford)",
+            "Parts of DE (Wilmington)"
+        ],
+        "team_size_estimate": "8-15 employees, multi-generational family-owned",
+        "years_in_business_estimate": "29+ years (referenced in owner response)",
+        "current_website": "https://lyonselectricalcontractorsinc.com/",
+        "current_gbp": "https://share.google/a0ViWY9AoGNYoXmPL",
+        "google_rating": "5.0 stars / 436 reviews (exceptional)",
+        "hours": "Open 24 hours, 7 days/week, 365 days/year"
+    },
+    "team_members_named_in_reviews": {
+        "leadership": [
+            {
+                "name": "Arthur Carroll",
+                "role": "Owner / Primary phone answerer / Field consultant"
+            },
+            {
+                "name": "Tom Carroll",
+                "role": "Estimator, site visits, Arthur's son (likely)"
+            },
+            {
+                "name": "Gene Goodman",
+                "role": "Operations Chief / Primary contact for Elenos engagement"
+            },
+            {
+                "name": "Allie / Ali",
+                "role": "Administration / paperwork"
+            },
+            {
+                "name": "Jean",
+                "role": "Coordination / scheduling"
+            }
+        ],
+        "field_electricians": [
+            "Tim Guinter",
+            "Tom O'Connor",
+            "Chris Lunny",
+            "Alvin Kessna",
+            "Maurice",
+            "Sean",
+            "Carlos",
+            "Brian Butler",
+            "Tyree Downs",
+            "Randy Brinkley",
+            "Darnell",
+            "Josh",
+            "Stacey",
+            "Bill"
+        ],
+        "note": "Team is named explicitly and frequently in customer reviews. This is a HUGE signal — customers connect with named individuals, not anonymous techs. Site should feature team prominently with photos and bios where possible."
+    },
+    "services": {
+        "primary_services": [
+            "24/7 emergency electrical service",
+            "Electrical panel replacement and upgrades (150A to 200A is most common)",
+            "Service line / weatherhead replacement",
+            "Outlet, switch, GFCI installation and repair",
+            "Whole-house rewiring (older homes, fuse-to-breaker conversions)",
+            "Storm damage repair and insurance claim coordination",
+            "Sub-panel installation",
+            "Outdoor outlet installation",
+            "Code compliance and inspections",
+            "Dedicated circuit installation (microwave, AC, etc.)",
+            "Light commercial electrical work"
+        ],
+        "secondary_services": [
+            "Smart meter conversions",
+            "Power restoration",
+            "Diagnostic / troubleshooting",
+            "Lighting installation"
+        ],
+        "financing": "18-month interest-free financing available",
+        "free_consultations": "Yes — free phone consultations with master electricians, often resolves issues without a service call"
+    },
+    "differentiators": {
+        "core_value_propositions": [
+            "Live master electrician answers calls 24/7/365 — no answering service, no robots",
+            "Same-day or next-day service for non-emergencies",
+            "Often resolves issues over the phone at no cost",
+            "Master electricians only — not journeymen techs",
+            "Family-owned, multi-generational (29+ years)",
+            "5.0 stars / 436 reviews — exceptional rep",
+            "Regional service area covering tri-state",
+            "18-month interest-free financing",
+            "Professional, courteous, leaves job sites clean",
+            "Consultative approach — will tell you NOT to hire them if a fix is simple enough to DIY"
+        ],
+        "brand_voice_in_reviews": "The owner's review responses use phrases like 'help people protect their lives and property with the safe use of electricity' as a clear mission statement. Tone is grateful, warm, family-business-coded, and emphasizes customer relationship over transaction. Use of phrases like 'going the extra mile,' 'the safe use of electricity,' and '24 hours a day, 7 days a week, 365 days a year' is repeated and on-message."
+    },
+    "customer_pain_points_observed": {
+        "primary_pains_solved": [
+            "Power loss in middle of the night with no electrician answering elsewhere",
+            "Burning smell, sparking outlets, fire safety concerns",
+            "Storm damage to electrical service",
+            "Outdated electrical panels (fuse boxes, Federal Pacific, glass fuses, dated breakers)",
+            "Insurance company runaround during storm damage",
+            "Other electricians charging weekend dispatch fees or refusing to come out",
+            "Confusion about whether issue is utility company's responsibility or homeowner's",
+            "Vulnerable customers (elderly parents, medical equipment dependents, families with kids) needing fast restoration"
+        ],
+        "common_customer_emotional_state": "Scared, panicked, or frustrated when calling. Often late at night, often after multiple other electricians refused or didn't answer. Lyons' competitive edge is calm, professional reassurance + fast action."
+    },
+    "competitive_context": {
+        "previous_web_vendor": "Comfort Media Group — relationship is over. Gene mentioned moving in a different direction. Worth understanding why during the project.",
+        "pricing_position": "Premium-priced. Two negative reviews specifically called out pricing as 'more than double' competitors. Owner responses defend pricing on quality, availability, and value grounds. This is a feature, not a bug — Lyons does not compete on price.",
+        "key_competitors_implied": "Other South NJ electricians (most competitors don't answer 24/7, don't offer financing, don't have 5-star track record at scale). Specific competitors not named in reviews."
+    },
+    "vision_for_new_website": {
+        "expressed_by_gene": "Wants something brand new on the web. Not just informational — wants RESOURCES section AND an AI chatbot that can answer questions and connect people to an electrician.",
+        "interpreted_needs": [
+            "Site needs to reflect 5-star quality — premium look, not generic contractor template",
+            "Strong emergency-services emphasis — 'CALL NOW' should be impossible to miss on mobile",
+            "Resources / education section to position Lyons as the trusted expert (helps with SEO and trust)",
+            "Real team featured — photos and names of named electricians",
+            "Reviews integration — 5.0 / 436 reviews must be prominently displayed",
+            "Service area map — visually convey the regional reach",
+            "Booking / scheduling for non-emergency work",
+            "AI chatbot — vision is broad, scope must be defined carefully"
+        ]
+    },
+    "ai_chatbot_scope_consideration": {
+        "gene_articulated_vision": "Chatbot to answer questions and connect people to an electrician.",
+        "elenos_recommended_approach": "Phase the chatbot. Phase 1 of project = website with chatbot-ready foundation. Phase 2 of engagement (within retainer or separate scope) = build the chatbot once we have actual customer questions captured to train it on. This produces a better chatbot AND reduces first-build risk for Elenos.",
+        "potential_chatbot_capabilities": [
+            "Triage emergency vs. non-emergency calls (route emergencies to phone, schedule non-emergencies)",
+            "Capture name, address, problem description, urgency level",
+            "Provide common DIY troubleshooting (when to call utility vs. electrician)",
+            "Surface relevant resources from the resources section",
+            "Hand off to a live human via phone, SMS, or live chat for emergency cases",
+            "Should NEVER give specific electrical advice that could create safety/liability issues"
+        ],
+        "liability_consideration": "Electrical advice from a chatbot creates real liability. Chatbot must have hardcoded safety responses for dangerous situations (sparks, fire, water + electrical, exposed wires) that route to immediate phone contact, not chatbot-attempted advice."
+    },
+    "deal_structure": {
+        "agreed_pricing_at_discovery": "$4,000 upfront setup, $750/month retainer",
+        "elenos_standard_pricing_range": "$2,500-$3,500 setup for standard build",
+        "premium_pricing_justified_by": "Custom AI chatbot scope, larger site (multi-page with resources), team features, regional service area, 5-star reputation deserves premium positioning, ongoing retainer work",
+        "deposit_structure_proposed": "50% upfront ($2,000) on signing, 50% on launch ($2,000)",
+        "retainer_inclusions_to_define": [
+            "Hosting and uptime monitoring",
+            "Monthly content updates / new pages as services expand",
+            "Chatbot maintenance and refinement (Phase 2)",
+            "Review widget updates",
+            "Security patches and SSL maintenance",
+            "Monthly performance reporting (traffic, conversions, calls)",
+            "Up to X hours per month of additional development"
+        ],
+        "timeline_proposed": "4-6 weeks from signed proposal to launch",
+        "next_milestones": [
+            "Demo + proposal delivered next week (call scheduled)",
+            "Sign-off and 50% deposit",
+            "Kickoff within 48 hours of payment",
+            "Design phase (~2 weeks)",
+            "Build phase (~2-3 weeks)",
+            "Launch + retainer activates next month"
+        ]
+    },
+    "site_architecture_recommended": {
+        "primary_pages": [
+            "Homepage — emergency-first hero, 'Call now 24/7,' 5.0 stars badge, service area, why Lyons",
+            "Emergency Services — dedicated page with biggest 'CALL NOW' button, common emergency types, what to do before they arrive",
+            "Services — full service list with detail pages for major categories (panel upgrades, service line, rewiring, etc.)",
+            "About / Our Team — family business story, 29+ years, named electricians with photos",
+            "Service Area — interactive map of South NJ, PA, DE coverage",
+            "Resources / Education — articles, FAQs, when to call vs. DIY, common issues explained (chatbot training source)",
+            "Reviews — all 436+ reviews integrated, sorted, searchable",
+            "Financing — 18-month interest-free explained",
+            "Contact / Schedule — booking flow for non-emergency, prominent phone for emergency",
+            "Blog (optional, retainer-driven content)"
+        ],
+        "key_features": [
+            "Mobile-first design — emergency callers are on phones, this is non-negotiable",
+            "Persistent 'Call Now 24/7' button on every page (especially on mobile)",
+            "Click-to-call functionality everywhere phone numbers appear",
+            "Live chat / AI chatbot widget (Phase 2)",
+            "Google Business Profile integration",
+            "Reviews carousel pulling live from Google",
+            "Service area lookup by ZIP",
+            "Online scheduling for non-emergency work",
+            "SSL, fast load times (under 3 seconds), accessibility compliance",
+            "SEO-optimized for 'emergency electrician [city] NJ' across service area"
+        ]
+    },
+    "design_direction": {
+        "visual_language": "Premium, trustworthy, professional. Not cheap-contractor-template. Not corporate-stiff. Family business meets craftsman quality.",
+        "color_palette_to_consider": "Their current site likely has electric blue and yellow / safety colors. New design should keep electrical-industry color codes (yellow = caution, blue = trust, red = emergency) but elevate them. Possibly a deep navy + warm accent + clean whites. Avoid generic blue-and-orange contractor palette.",
+        "imagery": "Real photos of the team, real photos of their trucks, real photos of completed work. NOT stock photos. Their reputation is built on REAL people.",
+        "typography": "Serious, readable, trustworthy. Sans-serif primary, possibly with a serif accent for headlines. Avoid trendy display fonts.",
+        "tone_in_copy": "Mirror Arthur's review-response voice. Mission-driven ('help people protect their lives and property with the safe use of electricity'). Warm, grateful, professional. Family business coded."
+    },
+    "conversion_priorities": {
+        "primary_conversion_actions": [
+            "Click-to-call (especially for emergencies)",
+            "Online schedule for non-emergency work",
+            "Submit chat / chatbot conversation",
+            "Request a quote / estimate"
+        ],
+        "trust_signals_to_feature": [
+            "5.0 stars / 436 Google reviews — feature prominently above the fold",
+            "29+ years in business",
+            "Family-owned, multi-generational",
+            "Master electricians only",
+            "Live human answers calls 24/7",
+            "18-month interest-free financing available",
+            "Coverage area badges (NJ, PA, DE)",
+            "Licensed, insured, bonded credentials"
+        ]
+    },
+    "elenos_engagement_notes": {
+        "why_this_deal_is_significant": "Lyons is Elenos's first qualified deal. Premium-priced ($4K + $750/mo = $13K year-1 value). Premium client (5.0 / 436 reviews, 29+ years, regional reach). Sets the reputation foundation for future Elenos prospects. Successful delivery here is the case study that closes Elenos clients 2-5.",
+        "scope_risk_to_manage": "AI chatbot agreed in scope but Elenos has not yet built one in production. Recommend Phase 1 (website with chatbot-ready foundation) + Phase 2 (chatbot deployment after launch, trained on real conversations). This is honest, technically correct, and protects delivery quality.",
+        "ai_receptionist_future_opportunity": "Lyons is a perfect fit for Elenos's eventual AI receptionist offer (Phase 2 of summer roadmap). Emergency-services business with 24/7 phone reach as core differentiator. Future upsell potential: $5K setup + $300-500/mo retainer for AI receptionist that handles overflow + after-hours triage. Do NOT mention this until website is delivered and trust is earned. Likely opportunity for Q3 2026 conversation.",
+        "demo_deliverable_for_next_week": "Figma or Framer designed mockup of homepage + 1-2 inner pages. Custom to Lyons (their colors, their team photos if available, their service area). Walk Gene through live on screen-share. Goal: visual confirmation of direction, leading into proposal sign-off.",
+        "proposal_to_send_with_demo": "1-2 page proposal: recap of Gene's vision in his words, what Elenos will build, scope (Phase 1 website + Phase 2 chatbot), timeline (4-6 weeks for Phase 1), investment ($4,000 setup + $750/mo retainer with retainer inclusions clearly listed), payment terms (50% / 50%), next steps (sign + Stripe deposit)."
+    },
+    "open_questions_for_next_call": [
+        "Confirm Gene's role — is he the final decision-maker or does Arthur sign off?",
+        "Confirm if Arthur should be on the next call",
+        "What didn't work with Comfort Media Group? What needs to be different?",
+        "Walk through the proposed Phase 1 / Phase 2 chatbot sequencing — is that OK with Gene's vision?",
+        "Get specific on emergency triage flow — what's the current path when someone calls at 11 PM?",
+        "Confirm service area for SEO targeting — focus on which 5-10 cities first?",
+        "Confirm: do they want online booking for non-emergency work, or keep all leads going through phone?",
+        "Confirm: any branding assets (logo files, fonts, brand guide) from previous vendor?",
+        "Confirm: any photos of team / trucks / completed work available for site, or do we need a photoshoot?"
+    ],
+    "metadata": {
+        "context_doc_purpose": "Single source of truth for the Lyons Electrical engagement. Used by Elenos to build the demo, proposal, and eventual site. Update as new information emerges during follow-up calls and project work.",
+        "next_update_trigger": "After demo + proposal call next week"
+    }
+}
