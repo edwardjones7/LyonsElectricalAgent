@@ -46,16 +46,13 @@ export default function ServicesPage() {
         <section className="relative">
           <div className="mx-auto max-w-7xl px-5 sm:px-8">
             <Reveal>
-              <Link
-                href={`/services/${emergency.slug}`}
-                className="group relative block rounded-[2.5rem] overflow-hidden ring-1 ring-[var(--color-navy-200)] bg-[var(--color-navy-900)] text-white"
-              >
+              <div className="relative rounded-[2.5rem] overflow-hidden ring-1 ring-[var(--color-navy-200)] bg-[var(--color-navy-900)] text-white">
                 <div className="absolute inset-0 opacity-50">
                   <BrandImage
                     photo={serviceImages.emergency}
                     treatment="duotone"
                     rounded="none"
-                    className="absolute inset-0 transition-transform duration-700 group-hover:scale-[1.02]"
+                    className="absolute inset-0"
                     sizes="(min-width: 1024px) 80vw, 100vw"
                   />
                 </div>
@@ -75,6 +72,13 @@ export default function ServicesPage() {
                     <p className="mt-5 text-lg text-[var(--color-navy-100)] leading-relaxed max-w-2xl">
                       {emergency.description}
                     </p>
+                    <Link
+                      href={`/services/${emergency.slug}`}
+                      className="mt-6 inline-flex items-center gap-2 text-[0.875rem] font-semibold text-[var(--color-electric-300)] hover:text-white transition-colors group w-fit"
+                    >
+                      Read more about emergency service
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
                   </div>
                   <div className="lg:col-span-5 lg:border-l lg:border-white/15 lg:pl-10 flex flex-col justify-end">
                     <div className="text-[0.7rem] uppercase tracking-[0.2em] text-[var(--color-electric-300)] font-bold">
@@ -90,7 +94,6 @@ export default function ServicesPage() {
                     </ul>
                     <a
                       href={`tel:${LYONS.phoneTel}`}
-                      onClick={(e) => e.stopPropagation()}
                       className="mt-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-[var(--color-emergency-500)] hover:bg-[var(--color-emergency-600)] text-white px-6 h-13 font-semibold py-3.5 shadow-[var(--shadow-emergency)] transition-all hover:-translate-y-0.5 w-fit"
                     >
                       <Phone className="w-4 h-4" />
@@ -98,7 +101,7 @@ export default function ServicesPage() {
                     </a>
                   </div>
                 </div>
-              </Link>
+              </div>
             </Reveal>
           </div>
         </section>

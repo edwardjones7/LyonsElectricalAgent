@@ -102,12 +102,12 @@ export function ChatWidget() {
           prev.map((m) =>
             m.id === assistantId
               ? {
-                  ...m,
-                  content:
-                    m.content ||
-                    `Sorry — having trouble connecting. For anything urgent, please call ${LYONS.phone}.`,
-                  state: "done",
-                }
+                ...m,
+                content:
+                  m.content ||
+                  `Sorry — having trouble connecting. For anything urgent, please call ${LYONS.phone}.`,
+                state: "done",
+              }
               : m,
           ),
         );
@@ -205,7 +205,7 @@ export function ChatWidget() {
                     Allie
                   </div>
                   <div className="text-[0.7rem] text-[var(--color-navy-200)] mt-1.5 leading-none">
-                    Usually replies in seconds · digital stand-in
+                    Responds in seconds.
                   </div>
                 </div>
               </div>
@@ -321,7 +321,7 @@ function Greeting() {
             Hey — Allie here.
           </div>
           <p className="text-sm text-[var(--color-ink-soft)] mt-1.5 leading-relaxed">
-            I&rsquo;m on the after-hours desk for Lyons. I can help with quotes, schedules, our service area, and the basic stuff. If anything&rsquo;s urgent — sparks, smoke, water near electrical — tap call up top and Arthur or one of our master electricians picks up before the second ring.
+            I&rsquo;m on 24/7 as the chat assistant for Lyons. I can help with quotes, schedules, our service area, and the basic stuff. If anything&rsquo;s urgent — sparks, smoke, water near electrical — tap call up top and one of our master electricians picks up before the second ring.
           </p>
         </div>
       </div>
