@@ -4,9 +4,10 @@ import { useSyncExternalStore } from "react";
 
 type ChatState = {
   open: boolean;
+  voiceMode: boolean;
 };
 
-let state: ChatState = { open: false };
+let state: ChatState = { open: false, voiceMode: false };
 const listeners = new Set<() => void>();
 
 function emit() {
@@ -22,7 +23,7 @@ function subscribe(cb: () => void) {
 
 export function setOpen(open: boolean) {
   if (state.open === open) return;
-  state = { open };
+  state = { ...state, open };
   emit();
 }
 
@@ -30,10 +31,35 @@ export function toggleOpen() {
   setOpen(!state.open);
 }
 
-export function useChatStore<T>(selector: (s: ChatState & { setOpen: typeof setOpen; toggleOpen: typeof toggleOpen }) => T): T {
+export function setVoiceMode(voiceMode: boolean) {
+  if (state.voiceMode === voiceMode) return;
+  state = { ...state, voiceMode };
+  emit();
+}
+
+export function toggleVoiceMode() {
+  setVoiceMode(!state.voiceMode);
+}
+
+type StoreApi = ChatState & {
+  setOpen: typeof setOpen;
+  toggleOpen: typeof toggleOpen;
+  setVoiceMode: typeof setVoiceMode;
+  toggleVoiceMode: typeof toggleVoiceMode;
+};
+
+export function useChatStore<T>(selector: (s: StoreApi) => T): T {
   return useSyncExternalStore(
     subscribe,
-    () => selector({ ...state, setOpen, toggleOpen }),
-    () => selector({ open: false, setOpen, toggleOpen }),
+    () => selector({ ...state, setOpen, toggleOpen, setVoiceMode, toggleVoiceMode }),
+    () =>
+      selector({
+        open: false,
+        voiceMode: false,
+        setOpen,
+        toggleOpen,
+        setVoiceMode,
+        toggleVoiceMode,
+      }),
   );
 }

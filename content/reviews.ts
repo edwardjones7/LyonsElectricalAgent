@@ -4,6 +4,10 @@ export type Review = {
   text: string;
   service: "emergency" | "panel" | "service-line" | "wiring" | "general" | "commercial";
   city?: string;
+  /** Pinned to the spotlight section on /reviews. At most 3 should be flagged. */
+  featured?: boolean;
+  /** Editor-style headline shown above the spotlight quote (industrial uppercase). */
+  editorHeadline?: string;
 };
 
 // Placeholder reviews drawn from common themes in Lyons' 5.0 / 436 Google reviews
@@ -17,6 +21,8 @@ export const reviews: Review[] = [
     text: "Power went out at 11 p.m. and I'd already called two other electricians who never picked up. Lyons answered on the second ring. Arthur walked me through what to check before sending anyone, and they had the service back up by morning. Above and beyond.",
     service: "emergency",
     city: "Cherry Hill",
+    featured: true,
+    editorHeadline: "When the power went out at 11pm",
   },
   {
     author: "Michael T.",
@@ -24,13 +30,8 @@ export const reviews: Review[] = [
     text: "Federal Pacific panel finally caught up with us. Tom came out, gave us a clear estimate the same day, and the crew swapped it for a 200A service two days later. Permits handled, inspector signed off, and the job site was cleaner than they found it.",
     service: "panel",
     city: "Mt. Laurel",
-  },
-  {
-    author: "Linda R.",
-    rating: 5,
-    text: "Storm took down the wires running to our weatherhead. The utility wouldn't touch it and our insurance company was giving us the runaround. Gene coordinated with everyone, got the line back, and helped us through the claim. Real, kind people.",
-    service: "service-line",
-    city: "Burlington",
+    featured: true,
+    editorHeadline: "The Federal-Pacific finally caught up",
   },
   {
     author: "David M.",
@@ -38,6 +39,15 @@ export const reviews: Review[] = [
     text: "Called about a flickering light fixture I was sure was a major issue. The electrician on the phone (master, not a dispatcher!) walked me through it in five minutes — turned out to be the bulb. Didn't charge me a dime. I'll call them for anything from now on.",
     service: "general",
     city: "Marlton",
+    featured: true,
+    editorHeadline: "We talked her out of a service call",
+  },
+  {
+    author: "Linda R.",
+    rating: 5,
+    text: "Storm took down the wires running to our weatherhead. The utility wouldn't touch it and our insurance company was giving us the runaround. Gene coordinated with everyone, got the line back, and helped us through the claim. Real, kind people.",
+    service: "service-line",
+    city: "Burlington",
   },
   {
     author: "Patricia V.",

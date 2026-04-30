@@ -1,19 +1,19 @@
 import Link from "next/link";
-import { ArrowRight, Clock } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { resources } from "@/content/resources";
+import { resourceImages } from "@/content/images";
 import { PageHero } from "@/components/PageHero";
+import { BrandImage } from "@/components/ui/BrandImage";
+import { ArticleByline } from "@/components/ui/ArticleByline";
+import { ResourceGrid } from "@/components/sections/ResourceGrid";
 
 export const metadata = { title: "Resources" };
 
-const CATEGORY_LABEL: Record<string, string> = {
-  safety: "Safety",
-  panels: "Panels",
-  diy: "DIY vs. Pro",
-  storm: "Storm",
-  buying: "Buying",
-};
-
 export default function ResourcesPage() {
+  const featured = resources.find((r) => r.featured) ?? resources[0];
+  const rest = resources.filter((r) => r.slug !== featured.slug);
+  const featuredPhoto = resourceImages[featured.slug];
+
   return (
     <>
       <PageHero
@@ -23,33 +23,56 @@ export default function ResourcesPage() {
         eyebrowTone="brass"
       />
 
-      <section className="pb-28">
-        <div className="mx-auto max-w-5xl px-5 sm:px-8">
-          <div className="grid gap-5 lg:grid-cols-2">
-            {resources.map((r) => (
-              <Link
-                key={r.slug}
-                href={`/resources/${r.slug}`}
-                className="group rounded-3xl bg-white p-7 lg:p-8 ring-1 ring-[var(--color-navy-200)] hover:ring-[var(--color-navy-700)] hover:-translate-y-0.5 transition-all hover:shadow-[var(--shadow-pop)]"
-              >
-                <div className="flex items-center gap-2.5 text-xs text-[var(--color-muted)]">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-cream-100)] px-2.5 py-1 text-[var(--color-brass-700)] font-semibold uppercase tracking-wider text-[0.65rem]">
-                    {CATEGORY_LABEL[r.category]}
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {r.readMinutes} min read
-                  </span>
+      <section className="pb-12">
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <Link
+            href={`/resources/${featured.slug}`}
+            className="group block overflow-hidden rounded-3xl bg-white ring-1 ring-[var(--color-navy-200)] hover:ring-[var(--color-navy-700)] hover:shadow-[var(--shadow-pop)] transition-all"
+          >
+            <div className="grid lg:grid-cols-12 gap-0">
+              {featuredPhoto && (
+                <div className="relative lg:col-span-7 aspect-[16/10] lg:aspect-auto lg:min-h-[420px]">
+                  <BrandImage
+                    photo={featuredPhoto}
+                    treatment="none"
+                    rounded="none"
+                    priority
+                    sizes="(min-width: 1024px) 60vw, 100vw"
+                    className="absolute inset-0"
+                    imageClassName="group-hover:scale-[1.01] transition-transform duration-500"
+                  />
                 </div>
-                <h3 className="mt-4 text-[var(--color-navy-900)] leading-snug">{r.title}</h3>
-                <p className="mt-3 text-[var(--color-ink-soft)] leading-relaxed">{r.blurb}</p>
-                <div className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-navy-800)] group-hover:text-[var(--color-brass-700)]">
-                  Read article
+              )}
+              <div className="lg:col-span-5 p-7 sm:p-10 flex flex-col gap-5 justify-center">
+                <div className="text-[0.65rem] uppercase tracking-[0.25em] font-bold text-[var(--color-brass-700)]">
+                  Editor&rsquo;s pick
+                </div>
+                <h2 className="heading-prose text-[1.875rem] sm:text-[2.25rem] leading-[1.1] text-[var(--color-navy-900)]">
+                  {featured.title}
+                </h2>
+                <p className="text-[var(--color-ink-soft)] leading-relaxed">{featured.blurb}</p>
+                <ArticleByline
+                  category={featured.category}
+                  author={featured.author}
+                  publishedAt={featured.publishedAt}
+                  readMinutes={featured.readMinutes}
+                />
+                <div className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-navy-800)] group-hover:text-[var(--color-brass-700)]">
+                  Read the article
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </div>
-              </Link>
-            ))}
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      <section className="pb-28">
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <div className="flex items-end justify-between gap-4 mb-6">
+            <h2 className="heading-prose text-2xl text-[var(--color-navy-900)]">More articles</h2>
           </div>
+          <ResourceGrid resources={rest} />
         </div>
       </section>
     </>

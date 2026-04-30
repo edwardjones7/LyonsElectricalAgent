@@ -1,11 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, Clock, Phone, AlertOctagon, Info } from "lucide-react";
+import { ArrowLeft, ArrowRight, Phone, AlertOctagon, Info } from "lucide-react";
 import { findResource, resources } from "@/content/resources";
 import { LYONS } from "@/lib/constants";
 import { BrandImage } from "@/components/ui/BrandImage";
 import { Reveal } from "@/components/ui/Reveal";
+import { ArticleByline } from "@/components/ui/ArticleByline";
+import { PullQuote } from "@/components/ui/PullQuote";
+import { SectionRule } from "@/components/ui/SectionRule";
+import { YouTubeEmbed } from "@/components/ui/YouTubeEmbed";
 import { resourceImages } from "@/content/images";
+import Image from "next/image";
 
 export function generateStaticParams() {
   return resources.map((r) => ({ slug: r.slug }));
@@ -31,31 +36,58 @@ export default async function ResourceDetailPage({
 
   return (
     <>
-      <section className="relative bg-[var(--color-navy-900)] text-white overflow-hidden">
-        {heroPhoto && (
-          <div className="absolute inset-0">
-            <BrandImage photo={heroPhoto} treatment="duotone" rounded="none" priority className="absolute inset-0" sizes="100vw" />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-grid opacity-20" aria-hidden />
-        <div className="relative mx-auto max-w-3xl px-5 sm:px-8 pt-20 lg:pt-28 pb-16 lg:pb-24">
+      <header className="bg-[var(--color-cream)] pt-14 lg:pt-20 pb-10">
+        <div className="mx-auto max-w-3xl px-5 sm:px-8">
           <Link
             href="/resources"
-            className="inline-flex items-center gap-1.5 text-sm text-[var(--color-navy-200)] hover:text-white"
+            className="inline-flex items-center gap-1.5 text-sm text-[var(--color-navy-700)] hover:text-[var(--color-navy-900)]"
           >
             <ArrowLeft className="w-4 h-4" />
             All resources
           </Link>
-          <h1 className="mt-6 text-white">{r.title}</h1>
-          <div className="mt-6 inline-flex items-center gap-2 text-sm text-[var(--color-navy-200)]">
-            <Clock className="w-4 h-4" />
-            {r.readMinutes}-minute read
+          <h1 className="heading-prose mt-8 text-[2.25rem] sm:text-[2.75rem] lg:text-[3.25rem] text-[var(--color-navy-900)]">
+            {r.title}
+          </h1>
+          <p className="mt-5 text-lg text-[var(--color-ink-soft)] leading-relaxed font-display">
+            {r.blurb}
+          </p>
+          <div className="mt-7">
+            <ArticleByline
+              category={r.category}
+              author={r.author}
+              publishedAt={r.publishedAt}
+              readMinutes={r.readMinutes}
+            />
           </div>
         </div>
-      </section>
+      </header>
 
-      <article className="py-16 lg:py-20">
-        <div className="mx-auto max-w-3xl px-5 sm:px-8 prose-lyons">
+      {heroPhoto && (
+        <div className="bg-[var(--color-cream)]">
+          <div className="mx-auto max-w-4xl px-5 sm:px-8">
+            <figure>
+              <div className="relative aspect-[21/9] overflow-hidden rounded-2xl">
+                <BrandImage
+                  photo={heroPhoto}
+                  treatment="none"
+                  rounded="none"
+                  priority
+                  sizes="(min-width: 1024px) 56rem, 100vw"
+                  className="absolute inset-0"
+                />
+              </div>
+              {heroPhoto.credit && (
+                <figcaption className="mt-2 text-xs text-[var(--color-muted)] italic font-display text-right">
+                  Photo · {heroPhoto.credit}
+                </figcaption>
+              )}
+            </figure>
+          </div>
+        </div>
+      )}
+
+      <article className="bg-[var(--color-cream)] pt-10 pb-20 lg:pb-28">
+        <div className="mx-auto max-w-2xl px-5 sm:px-8 prose-lyons prose-lyons-article">
           {r.body.map((block, i) => (
             <Reveal key={i}>
               <Block block={block} first={i === 0} />
@@ -109,15 +141,7 @@ export default async function ResourceDetailPage({
 function Block({ block, first }: { block: import("@/content/resources").ResourceBlock; first?: boolean }) {
   switch (block.kind) {
     case "p":
-      if (first) {
-        // Treat the first paragraph as a pull-quote-styled lead
-        return (
-          <p className="text-xl text-[var(--color-navy-900)] font-display leading-snug border-l-4 border-[var(--color-brass-500)] pl-5 py-1 my-6">
-            {block.text}
-          </p>
-        );
-      }
-      return <p>{block.text}</p>;
+      return <p className={first ? "lead-paragraph" : undefined}>{block.text}</p>;
     case "h2":
       return <h2>{block.text}</h2>;
     case "h3":
@@ -133,10 +157,10 @@ function Block({ block, first }: { block: import("@/content/resources").Resource
     case "callout":
       return (
         <div
-          className={`my-6 rounded-2xl p-5 ring-1 flex gap-3 ${
+          className={`my-8 rounded-2xl p-5 flex gap-3 ${
             block.tone === "warning"
-              ? "bg-[var(--color-emergency-50)] ring-[var(--color-emergency-500)]/30"
-              : "bg-[var(--color-cream-100)] ring-[var(--color-brass-200)]"
+              ? "bg-[var(--color-emergency-50)] border-l-4 border-[var(--color-emergency-500)]"
+              : "bg-[var(--color-cream-100)] border-l-4 border-[var(--color-brass-500)]"
           }`}
         >
           {block.tone === "warning" ? (
@@ -150,5 +174,32 @@ function Block({ block, first }: { block: import("@/content/resources").Resource
           </div>
         </div>
       );
+    case "quote":
+      return <PullQuote text={block.text} attribution={block.attribution} />;
+    case "image":
+      return (
+        <figure className="my-10">
+          <div className="relative aspect-[16/9] overflow-hidden rounded-2xl ring-1 ring-[var(--color-navy-200)]">
+            <Image
+              src={block.src}
+              alt={block.alt}
+              fill
+              sizes="(min-width: 1024px) 42rem, 100vw"
+              className="object-cover"
+            />
+          </div>
+          {(block.caption || block.credit) && (
+            <figcaption className="mt-3 text-sm text-[var(--color-muted)] italic font-display leading-snug">
+              {block.caption}
+              {block.caption && block.credit && " · "}
+              {block.credit && <span className="not-italic text-xs">Photo · {block.credit}</span>}
+            </figcaption>
+          )}
+        </figure>
+      );
+    case "video":
+      return <YouTubeEmbed youtubeId={block.youtubeId} caption={block.caption} />;
+    case "hr":
+      return <SectionRule />;
   }
 }

@@ -18,6 +18,7 @@ const requestSchema = z.object({
     )
     .min(1)
     .max(40),
+  mode: z.enum(["text", "voice"]).optional(),
 });
 
 const MODEL = "llama-3.3-70b-versatile";
@@ -77,7 +78,7 @@ export async function POST(req: NextRequest) {
   }
 
   const client = new Groq({ apiKey });
-  const systemPrompt = buildSystemPrompt();
+  const systemPrompt = buildSystemPrompt({ mode: body.mode });
 
   return streamResponse(async (write) => {
     let buffer = "";

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { MessageSquareText, X, Send, Phone, Loader2, BookOpen, CheckCircle2 } from "lucide-react";
+import { MessageSquareText, X, Send, Phone, Loader2, BookOpen, CheckCircle2, Mic, MicOff } from "lucide-react";
 import Link from "next/link";
 import { LYONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,8 @@ import { useChatStore } from "./chatStore";
 import { DangerPanel } from "./DangerPanel";
 import { AllieAvatar } from "./AllieAvatar";
 import { TypingRow } from "./TypingRow";
+import { VoiceControls } from "./VoiceControls";
+import { useVoiceSession } from "./useVoiceSession";
 import type { ChatMessage, StreamEvent } from "./types";
 import { findResource } from "@/content/resources";
 
@@ -27,11 +29,27 @@ function uid() {
 export function ChatWidget() {
   const open = useChatStore((s) => s.open);
   const setOpen = useChatStore((s) => s.setOpen);
+  const voiceMode = useChatStore((s) => s.voiceMode);
+  const setVoiceMode = useChatStore((s) => s.setVoiceMode);
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [input, setInput] = React.useState("");
   const [streaming, setStreaming] = React.useState(false);
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const abortRef = React.useRef<AbortController | null>(null);
+
+  // Refs let closures read live values without re-binding on every change.
+  const voiceModeRef = React.useRef(voiceMode);
+  React.useEffect(() => {
+    voiceModeRef.current = voiceMode;
+  }, [voiceMode]);
+
+  const sendRef = React.useRef<((text: string) => Promise<void>) | null>(null);
+
+  const handleUtterance = React.useCallback((text: string) => {
+    void sendRef.current?.(text);
+  }, []);
+
+  const voice = useVoiceSession({ onUtterance: handleUtterance });
 
   React.useEffect(() => {
     if (scrollRef.current) {
@@ -56,6 +74,7 @@ export function ChatWidget() {
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
     setStreaming(true);
 
+    const isVoice = voiceModeRef.current;
     const controller = new AbortController();
     abortRef.current = controller;
 
@@ -64,6 +83,7 @@ export function ChatWidget() {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
+          mode: isVoice ? "voice" : "text",
           messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.content })),
         }),
         signal: controller.signal,
@@ -92,6 +112,20 @@ export function ChatWidget() {
             continue;
           }
           applyEvent(assistantId, evt, setMessages);
+
+          if (isVoice) {
+            if (evt.type === "text") {
+              voice.speakStream(evt.delta);
+            } else if (evt.type === "done") {
+              voice.flushSpeech();
+            } else if (evt.type === "call_cta" || evt.type === "escalate" || evt.type === "danger") {
+              // Markers that hand off to the dialer — stop talking and exit
+              // voice so the user sees the call UI uninterrupted.
+              voice.cancelSpeech();
+              voice.stop();
+              setVoiceMode(false);
+            }
+          }
         }
       }
     } catch (err) {
@@ -116,7 +150,28 @@ export function ChatWidget() {
       setStreaming(false);
       abortRef.current = null;
     }
-  }, [messages, streaming]);
+  }, [messages, streaming, voice, setVoiceMode]);
+
+  React.useEffect(() => {
+    sendRef.current = send;
+  }, [send]);
+
+  // When voice mode toggles on, start listening and ensure chat is open.
+  // When it toggles off, stop listening and silence any active TTS.
+  React.useEffect(() => {
+    if (voiceMode) {
+      if (!open) setOpen(true);
+      voice.start();
+    } else {
+      voice.stop();
+      voice.cancelSpeech();
+    }
+  }, [voiceMode, voice, open, setOpen]);
+
+  // Closing the chat also exits voice mode.
+  React.useEffect(() => {
+    if (!open && voiceMode) setVoiceMode(false);
+  }, [open, voiceMode, setVoiceMode]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -209,14 +264,32 @@ export function ChatWidget() {
                   </div>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="grid place-items-center w-9 h-9 rounded-full hover:bg-white/10 shrink-0"
-                aria-label="Close chat"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-1.5 shrink-0">
+                {voice.supported && (
+                  <button
+                    type="button"
+                    onClick={() => setVoiceMode(!voiceMode)}
+                    className={cn(
+                      "grid place-items-center w-9 h-9 rounded-full transition-colors",
+                      voiceMode
+                        ? "bg-[var(--color-electric-500)] hover:bg-[var(--color-electric-400)] text-white"
+                        : "hover:bg-white/10 text-white",
+                    )}
+                    aria-label={voiceMode ? "Turn off voice mode" : "Talk to Allie out loud"}
+                    title={voiceMode ? "Turn off voice mode" : "Talk to Allie out loud"}
+                  >
+                    {voiceMode ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="grid place-items-center w-9 h-9 rounded-full hover:bg-white/10"
+                  aria-label="Close chat"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Persistent call-now strip — handoff is always one tap */}
@@ -262,35 +335,44 @@ export function ChatWidget() {
               )}
             </div>
 
-            {/* Input */}
-            <form
-              onSubmit={onSubmit}
-              className="border-t border-[var(--color-navy-200)] bg-white p-3 [padding-bottom:calc(env(safe-area-inset-bottom)+12px)] shrink-0"
-            >
-              <div className="flex items-end gap-2">
-                <textarea
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      void send(input);
-                    }
-                  }}
-                  rows={1}
-                  placeholder="Tell me what's going on…"
-                  className="flex-1 resize-none rounded-2xl border border-[var(--color-navy-200)] focus:border-[var(--color-electric-600)] focus:ring-2 focus:ring-[var(--color-electric-200)] outline-none px-3.5 py-2.5 text-[0.9375rem] text-[var(--color-ink)] placeholder:text-[var(--color-muted)] max-h-32"
-                />
-                <button
-                  type="submit"
-                  disabled={streaming || !input.trim()}
-                  aria-label="Send message"
-                  className="grid place-items-center w-11 h-11 rounded-full bg-[var(--color-electric-600)] hover:bg-[var(--color-electric-700)] text-white disabled:opacity-40 disabled:pointer-events-none transition-colors"
-                >
-                  {streaming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                </button>
-              </div>
-            </form>
+            {voiceMode ? (
+              <VoiceControls
+                listening={voice.listening}
+                speaking={voice.speaking}
+                interimTranscript={voice.interimTranscript}
+                onToggleListen={() => (voice.listening ? voice.stop() : voice.start())}
+                onExitVoice={() => setVoiceMode(false)}
+              />
+            ) : (
+              <form
+                onSubmit={onSubmit}
+                className="border-t border-[var(--color-navy-200)] bg-white p-3 [padding-bottom:calc(env(safe-area-inset-bottom)+12px)] shrink-0"
+              >
+                <div className="flex items-end gap-2">
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        void send(input);
+                      }
+                    }}
+                    rows={1}
+                    placeholder="Tell me what's going on…"
+                    className="flex-1 resize-none rounded-2xl border border-[var(--color-navy-200)] focus:border-[var(--color-electric-600)] focus:ring-2 focus:ring-[var(--color-electric-200)] outline-none px-3.5 py-2.5 text-[0.9375rem] text-[var(--color-ink)] placeholder:text-[var(--color-muted)] max-h-32"
+                  />
+                  <button
+                    type="submit"
+                    disabled={streaming || !input.trim()}
+                    aria-label="Send message"
+                    className="grid place-items-center w-11 h-11 rounded-full bg-[var(--color-electric-600)] hover:bg-[var(--color-electric-700)] text-white disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                  >
+                    {streaming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  </button>
+                </div>
+              </form>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

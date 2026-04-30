@@ -4,6 +4,12 @@ export type Resource = {
   blurb: string;
   category: "safety" | "panels" | "diy" | "storm" | "buying";
   readMinutes: number;
+  /** ISO date (e.g. "2026-04-01"). Renders as the article dateline ("Apr 2026"). */
+  publishedAt: string;
+  /** Defaults to "Lyons Electrical" if omitted. */
+  author?: string;
+  /** Pinned as the editor's-pick on the /resources index. At most one should be true. */
+  featured?: boolean;
   body: ResourceBlock[];
 };
 
@@ -12,7 +18,11 @@ export type ResourceBlock =
   | { kind: "h2"; text: string }
   | { kind: "h3"; text: string }
   | { kind: "ul"; items: string[] }
-  | { kind: "callout"; tone: "warning" | "info"; title: string; text: string };
+  | { kind: "callout"; tone: "warning" | "info"; title: string; text: string }
+  | { kind: "quote"; text: string; attribution?: string }
+  | { kind: "image"; src: string; alt: string; caption?: string; credit?: string }
+  | { kind: "video"; youtubeId: string; caption?: string }
+  | { kind: "hr" };
 
 export const resources: Resource[] = [
   {
@@ -22,6 +32,7 @@ export const resources: Resource[] = [
       "Most flickering lights aren't an emergency. A burning smell behind a wall is. A practical guide.",
     category: "diy",
     readMinutes: 4,
+    publishedAt: "2026-03-12",
     body: [
       {
         kind: "p",
@@ -69,6 +80,8 @@ export const resources: Resource[] = [
       "Federal Pacific, Zinsco, and glass-fuse panels have all earned their reputation. How to spot one.",
     category: "panels",
     readMinutes: 5,
+    publishedAt: "2026-04-02",
+    featured: true,
     body: [
       {
         kind: "p",
@@ -117,6 +130,7 @@ export const resources: Resource[] = [
       "What to do when the lights go out — and what's your responsibility versus the utility's.",
     category: "storm",
     readMinutes: 4,
+    publishedAt: "2026-02-18",
     body: [
       {
         kind: "p",
@@ -159,6 +173,7 @@ export const resources: Resource[] = [
       "The difference between a master, a journeyman, and an apprentice — and why the person on the line matters.",
     category: "buying",
     readMinutes: 3,
+    publishedAt: "2026-01-22",
     body: [
       {
         kind: "p",
@@ -188,6 +203,7 @@ export const resources: Resource[] = [
       "If a township inspector showed up tomorrow, would your last electrical project pass?",
     category: "diy",
     readMinutes: 3,
+    publishedAt: "2025-11-08",
     body: [
       {
         kind: "p",
@@ -223,6 +239,7 @@ export const resources: Resource[] = [
       "What it actually takes to get a Level 2 charger in your garage, and what it usually costs.",
     category: "buying",
     readMinutes: 4,
+    publishedAt: "2026-04-15",
     body: [
       {
         kind: "p",
