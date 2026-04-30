@@ -238,7 +238,7 @@ export function ChatWidget() {
             className={cn(
               "fixed z-[60] bg-[var(--color-cream)] flex flex-col overflow-hidden",
               // Desktop: floating panel anchored just above the launcher
-              "lg:left-auto lg:top-auto lg:bottom-24 lg:right-6 lg:w-[400px] lg:h-[600px] lg:rounded-3xl lg:shadow-[var(--shadow-pop)] lg:border lg:border-[var(--color-navy-200)]",
+              "lg:left-auto lg:top-auto lg:bottom-24 lg:right-6 lg:w-[min(400px,calc(100vw-3rem))] lg:h-[min(600px,calc(100dvh-13rem))] lg:rounded-3xl lg:shadow-[var(--shadow-pop)] lg:border lg:border-[var(--color-navy-200)]",
               // Mobile: full sheet from bottom, sit above the call/chat bar
               "inset-x-0 bottom-0 top-16 rounded-t-3xl shadow-[0_-12px_48px_rgba(11,31,58,0.24)]",
             )}

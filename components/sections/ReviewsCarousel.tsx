@@ -39,14 +39,14 @@ export function ReviewsCarousel() {
         <Marquee speed={70} className="">
           {rowA.map((r, i) => (
             <div key={`a-${i}`} className="px-2.5">
-              <ReviewTile r={r} variant={i % 2 === 0 ? "tall" : "short"} />
+              <ReviewTile r={r} />
             </div>
           ))}
         </Marquee>
         <Marquee speed={90} reverse>
           {rowB.map((r, i) => (
             <div key={`b-${i}`} className="px-2.5">
-              <ReviewTile r={r} variant={i % 2 === 0 ? "short" : "tall"} />
+              <ReviewTile r={r} />
             </div>
           ))}
         </Marquee>
@@ -55,10 +55,10 @@ export function ReviewsCarousel() {
   );
 }
 
-function ReviewTile({ r, variant }: { r: typeof reviews[number]; variant: "tall" | "short" }) {
+function ReviewTile({ r }: { r: typeof reviews[number] }) {
   return (
     <article
-      className={`relative rounded-3xl bg-white p-6 ring-1 ring-[var(--color-navy-200)] shadow-[var(--shadow-soft)] w-[340px] ${variant === "tall" ? "min-h-[260px]" : "min-h-[200px]"}`}
+      className="relative rounded-3xl bg-white p-6 ring-1 ring-[var(--color-navy-200)] shadow-[var(--shadow-soft)] w-[340px] h-[280px]"
     >
       <Quote className="absolute top-5 right-5 w-6 h-6 text-[var(--color-brass-300)]/40" />
       <div className="flex items-center gap-1">

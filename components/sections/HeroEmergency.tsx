@@ -42,7 +42,7 @@ export function HeroEmergency() {
         />
       </motion.div>
 
-      <div className="relative mx-auto max-w-7xl px-5 sm:px-8 pt-16 pb-24 lg:pt-24 lg:pb-32">
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-8 pt-12 pb-20 md:pt-16 md:pb-24 lg:pt-20 lg:pb-28">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16 items-center">
           <div className="lg:col-span-7">
             <motion.div
@@ -120,7 +120,7 @@ export function HeroEmergency() {
             transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
             className="lg:col-span-5 relative"
           >
-            <div className="relative aspect-[4/5] max-h-[640px]">
+            <div className="relative aspect-[4/5] max-h-[min(640px,62vh)]">
               <BrandImage
                 photo={heroPanel}
                 treatment="duotone"
