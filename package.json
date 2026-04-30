@@ -11,13 +11,14 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "groq-sdk": "^0.30.0",
     "@hookform/resolvers": "^4.1.0",
     "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-popover": "^1.1.6",
     "clsx": "^2.1.1",
+    "d3-geo": "^3.1.1",
     "framer-motion": "^12.4.0",
+    "groq-sdk": "^0.30.0",
     "lucide-react": "^0.475.0",
     "next": "15.1.7",
     "react": "19.0.0",
@@ -25,13 +26,17 @@
     "react-hook-form": "^7.54.2",
     "resend": "^4.1.2",
     "tailwind-merge": "^3.0.1",
+    "topojson-client": "^3.1.0",
+    "us-atlas": "^3.0.1",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.6",
+    "@types/d3-geo": "^3.1.0",
     "@types/node": "^22.13.4",
     "@types/react": "19.0.8",
     "@types/react-dom": "19.0.3",
+    "@types/topojson-client": "^3.1.5",
     "tailwindcss": "^4.0.6",
     "typescript": "^5.7.3",
     "vitest": "^3.0.5"
