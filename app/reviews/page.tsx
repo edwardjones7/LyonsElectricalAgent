@@ -14,10 +14,13 @@ export const metadata = { title: "Reviews" };
 const LYONS_GBP_URL = "https://share.google/a0ViWY9AoGNYoXmPL";
 
 export default function ReviewsPage() {
+  // Each row gets the full remaining set so it's wide enough to scroll
+  // continuously on any viewport. Row B uses a rotated order so the two rows
+  // don't read like the same content moving in opposite directions.
   const remaining = reviews.filter((r) => !r.featured);
-  const half = Math.ceil(remaining.length / 2);
-  const rowA = remaining.slice(0, half);
-  const rowB = remaining.slice(half);
+  const rowA = remaining;
+  const rotateBy = Math.floor(remaining.length / 2);
+  const rowB = [...remaining.slice(rotateBy), ...remaining.slice(0, rotateBy)];
 
   return (
     <>
@@ -76,14 +79,14 @@ export default function ReviewsPage() {
         </div>
 
         <div className="space-y-4">
-          <Marquee speed={55}>
+          <Marquee speed={95}>
             {rowA.map((r, i) => (
               <div key={`a-${i}`} className="px-2.5">
                 <ReviewTile r={r} variant={i % 2 === 0 ? "tall" : "short"} />
               </div>
             ))}
           </Marquee>
-          <Marquee speed={45} reverse>
+          <Marquee speed={95} reverse>
             {rowB.map((r, i) => (
               <div key={`b-${i}`} className="px-2.5">
                 <ReviewTile r={r} variant={i % 2 === 0 ? "short" : "tall"} />

@@ -34,7 +34,13 @@ export function Marquee({
           pauseOnHover && "group-hover:[animation-play-state:paused]",
         )}
       >
+        {/* Three copies — keeps the row wide enough to span ultra-wide viewports
+          * while the keyframe still seamlessly loops at -50% (since 1.5 copies
+          * worth of content always remains visible past the loop point). */}
         <div className="flex shrink-0 items-center">{children}</div>
+        <div className="flex shrink-0 items-center" aria-hidden>
+          {children}
+        </div>
         <div className="flex shrink-0 items-center" aria-hidden>
           {children}
         </div>
