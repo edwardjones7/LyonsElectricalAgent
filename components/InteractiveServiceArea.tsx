@@ -3,24 +3,46 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  ArrowLeft,
   BatteryCharging,
   Cable,
+  ChevronRight,
   Lightbulb,
+  MapPin,
   PanelTop,
+  Phone,
   PlugZap,
   ShieldCheck,
   Siren,
   Wrench,
 } from "lucide-react";
-import { citiesByState, regions, townToRegion, type RegionId, type ServiceRegion } from "@/content/serviceArea";
+import { LYONS } from "@/lib/constants";
+import {
+  cities,
+  citiesByState,
+  regions,
+  townToRegion,
+  type RegionId,
+  type ServiceCity,
+  type ServiceRegion,
+} from "@/content/serviceArea";
 
 /**
- * Interactive map for the service-area page: hover a region to highlight that
- * cluster and surface a side panel with sample jobs, top services, and a quote.
+ * Interactive map for the service-area page.
+ *
+ * Click-driven model: hover only previews a region (subtle highlight, no panel
+ * change); clicking a region or a town pin commits a selection that locks the
+ * panel until the user backs out. Town pins drill into a town view with
+ * distance-from-HQ and the region's recent work.
  *
  * The static-style map (no panel, no hover) lives in components/ServiceAreaMap.tsx
- * and is still used by the homepage teaser. This is a richer drill-down view.
+ * and is still used by the homepage teaser.
  */
+
+type Selection =
+  | { kind: "none" }
+  | { kind: "region"; id: RegionId }
+  | { kind: "town"; name: string };
 
 type Pin = { name: string; x: number; y: number; emphasized?: boolean };
 
@@ -69,10 +91,36 @@ const ICON_MAP = {
   wrench: Wrench,
 } as const;
 
+// HQ coords from cities[] (Blackwood, NJ).
+const HQ = { lat: 39.8023, lng: -75.0671 };
+
+function milesFromHq(city: ServiceCity): number {
+  const R = 3958.8;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(city.lat - HQ.lat);
+  const dLng = toRad(city.lng - HQ.lng);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(HQ.lat)) * Math.cos(toRad(city.lat)) * Math.sin(dLng / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function pinNameToCity(pinName: string): ServiceCity | undefined {
+  const clean = pinName.replace(" (HQ)", "");
+  return cities.find((c) => c.name === clean);
+}
+
 export function InteractiveServiceArea() {
-  // null = "Overview" panel; otherwise the active region id.
-  const [activeId, setActiveId] = useState<RegionId | null>(null);
-  const active = activeId ? regions.find((r) => r.id === activeId) ?? null : null;
+  const [selection, setSelection] = useState<Selection>({ kind: "none" });
+  const [hoveredRegion, setHoveredRegion] = useState<RegionId | null>(null);
+
+  const selectedRegionId =
+    selection.kind === "region"
+      ? selection.id
+      : selection.kind === "town"
+        ? townToRegion(selection.name) ?? null
+        : null;
 
   const totalCities =
     citiesByState.NJ.length + citiesByState.PA.length + citiesByState.DE.length;
@@ -81,16 +129,48 @@ export function InteractiveServiceArea() {
   return (
     <div className="grid gap-6 lg:gap-10 lg:grid-cols-12 items-stretch">
       <div className="lg:col-span-7 relative">
-        <RegionMap activeId={activeId} onChange={setActiveId} />
+        <RegionMap
+          selectedRegionId={selectedRegionId}
+          selectedTownName={selection.kind === "town" ? selection.name : null}
+          hoveredRegion={hoveredRegion}
+          onHoverRegion={setHoveredRegion}
+          onSelectRegion={(id) =>
+            setSelection((s) =>
+              s.kind === "region" && s.id === id ? { kind: "none" } : { kind: "region", id },
+            )
+          }
+          onSelectTown={(name) =>
+            setSelection((s) =>
+              s.kind === "town" && s.name === name ? { kind: "none" } : { kind: "town", name },
+            )
+          }
+        />
       </div>
 
       <div className="lg:col-span-5">
         <div className="sticky lg:top-24">
           <AnimatePresence mode="wait">
-            {active ? (
-              <RegionPanel key={active.id} region={active} />
+            {selection.kind === "town" ? (
+              <TownPanel
+                key={"town-" + selection.name}
+                townName={selection.name}
+                onSelectRegion={(id) => setSelection({ kind: "region", id })}
+                onClear={() => setSelection({ kind: "none" })}
+              />
+            ) : selection.kind === "region" ? (
+              <RegionPanel
+                key={"region-" + selection.id}
+                region={regions.find((r) => r.id === selection.id)!}
+                onClear={() => setSelection({ kind: "none" })}
+                onSelectTown={(name) => setSelection({ kind: "town", name })}
+              />
             ) : (
-              <OverviewPanel key="overview" totalCities={totalCities} totalJobs={totalJobs} />
+              <OverviewPanel
+                key="overview"
+                totalCities={totalCities}
+                totalJobs={totalJobs}
+                onSelectRegion={(id) => setSelection({ kind: "region", id })}
+              />
             )}
           </AnimatePresence>
         </div>
@@ -102,11 +182,19 @@ export function InteractiveServiceArea() {
 // -- Map --------------------------------------------------------------
 
 function RegionMap({
-  activeId,
-  onChange,
+  selectedRegionId,
+  selectedTownName,
+  hoveredRegion,
+  onHoverRegion,
+  onSelectRegion,
+  onSelectTown,
 }: {
-  activeId: RegionId | null;
-  onChange: (id: RegionId | null) => void;
+  selectedRegionId: RegionId | null;
+  selectedTownName: string | null;
+  hoveredRegion: RegionId | null;
+  onHoverRegion: (id: RegionId | null) => void;
+  onSelectRegion: (id: RegionId) => void;
+  onSelectTown: (name: string) => void;
 }) {
   return (
     <div className="rounded-3xl bg-[var(--color-navy-900)] ring-1 ring-white/10 p-4 sm:p-6 lg:p-8 overflow-hidden">
@@ -114,8 +202,7 @@ function RegionMap({
         viewBox="20 30 540 640"
         className="w-full h-auto"
         role="img"
-        aria-label="Interactive service area map. Hover or tap a region to see jobs and services from that area."
-        onMouseLeave={() => onChange(null)}
+        aria-label="Interactive service area map. Click a region or a town pin to drill in."
       >
         <defs>
           <radialGradient id="iPinGlow" cx="50%" cy="50%" r="50%">
@@ -163,24 +250,31 @@ function RegionMap({
           NJ
         </text>
 
-        {/* Region overlays — hover targets, glow when active */}
+        {/* Region overlays — hover previews softly, click locks selection */}
         {regions.map((region) => (
           <RegionOverlay
             key={region.id}
             region={region}
-            active={activeId === region.id}
-            anyActive={activeId !== null}
-            onEnter={() => onChange(region.id)}
-            onClick={() => onChange(region.id === activeId ? null : region.id)}
+            selected={selectedRegionId === region.id}
+            hovered={hoveredRegion === region.id}
+            anySelected={selectedRegionId !== null}
+            onEnter={() => onHoverRegion(region.id)}
+            onLeave={() => onHoverRegion(null)}
+            onClick={() => onSelectRegion(region.id)}
           />
         ))}
 
         {/* Pins */}
         {PINS.map((pin, i) => {
           const regionId = townToRegion(pin.name);
-          const isInActive = activeId !== null && regionId === activeId;
-          const isOutsideActive = activeId !== null && regionId !== activeId;
+          const cleanName = pin.name.replace(" (HQ)", "");
+          const isSelectedTown = selectedTownName === cleanName;
+          const activeRegion = selectedRegionId ?? hoveredRegion;
+          const isInActiveRegion = activeRegion !== null && regionId === activeRegion;
+          const isOutsideActive = activeRegion !== null && regionId !== activeRegion && !isSelectedTown;
           const isHQ = pin.name.includes("HQ");
+          const showLabel = isInActiveRegion || isSelectedTown;
+
           return (
             <motion.g
               key={pin.name}
@@ -190,10 +284,19 @@ function RegionMap({
               transition={{ duration: 0.4, delay: 0.25 + i * 0.02, ease: [0.2, 0.8, 0.2, 1] }}
               animate={{
                 opacity: isOutsideActive ? 0.25 : 1,
-                scale: isInActive ? 1.15 : 1,
+                scale: isSelectedTown ? 1.3 : isInActiveRegion ? 1.12 : 1,
               }}
-              style={{ transformOrigin: `${pin.x}px ${pin.y}px` }}
+              style={{ transformOrigin: `${pin.x}px ${pin.y}px`, cursor: "pointer" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectTown(cleanName);
+              }}
+              role="button"
+              aria-label={`${cleanName} — click for town details`}
             >
+              {/* invisible large hit target */}
+              <circle cx={pin.x} cy={pin.y} r={14} fill="transparent" />
+
               <circle
                 cx={pin.x}
                 cy={pin.y}
@@ -218,27 +321,36 @@ function RegionMap({
                   transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.2, ease: "easeOut" }}
                 />
               )}
-              {isInActive && (
+              {isSelectedTown && (
+                <motion.circle
+                  cx={pin.x}
+                  cy={pin.y}
+                  r={9}
+                  fill="none"
+                  stroke="var(--color-brass-400)"
+                  strokeWidth="2"
+                  animate={{ r: [9, 22, 9], opacity: [1, 0, 1] }}
+                  transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }}
+                />
+              )}
+              {showLabel && (
                 <text
                   x={pin.x + (pin.emphasized ? 9 : 7)}
                   y={pin.y + 3.5}
-                  fontSize="9.5"
-                  fill="var(--color-navy-50)"
-                  fontWeight="600"
+                  fontSize={isSelectedTown ? "11" : "9.5"}
+                  fill={isSelectedTown ? "var(--color-brass-300)" : "var(--color-navy-50)"}
+                  fontWeight={isSelectedTown ? "700" : "600"}
                   style={{ paintOrder: "stroke", stroke: "var(--color-navy-900)", strokeWidth: 3 }}
                 >
-                  {pin.name.replace(" (HQ)", "")}
+                  {cleanName}
                 </text>
               )}
             </motion.g>
           );
         })}
       </svg>
-      <div className="mt-3 text-xs text-[var(--color-navy-300)] text-center hidden lg:block">
-        Hover a region to explore. Tap to lock.
-      </div>
-      <div className="mt-3 text-xs text-[var(--color-navy-300)] text-center lg:hidden">
-        Tap any region to explore.
+      <div className="mt-3 text-xs text-[var(--color-navy-300)] text-center">
+        Click a region or a town pin to drill in.
       </div>
     </div>
   );
@@ -246,22 +358,32 @@ function RegionMap({
 
 function RegionOverlay({
   region,
-  active,
-  anyActive,
+  selected,
+  hovered,
+  anySelected,
   onEnter,
+  onLeave,
   onClick,
 }: {
   region: ServiceRegion;
-  active: boolean;
-  anyActive: boolean;
+  selected: boolean;
+  hovered: boolean;
+  anySelected: boolean;
   onEnter: () => void;
+  onLeave: () => void;
   onClick: () => void;
 }) {
   const { cx, cy, rx, ry } = region.shape;
-  const dim = anyActive && !active;
+  // Selected always wins. Hover previews softly only when nothing is locked.
+  const dim = anySelected && !selected;
+  const haloOpacity = selected ? 1 : hovered && !anySelected ? 0.55 : dim ? 0.05 : 0.35;
+  const ringOpacity = selected ? 0.85 : hovered && !anySelected ? 0.45 : 0;
+  const scale = selected ? 1.05 : hovered && !anySelected ? 1.025 : 1;
+
   return (
     <g
       onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
       onClick={onClick}
       style={{ cursor: "pointer" }}
       role="button"
@@ -274,7 +396,7 @@ function RegionOverlay({
         rx={rx}
         ry={ry}
         fill={`url(#${region.isHQ ? "iRegionGlowHQ" : "iRegionGlow"})`}
-        animate={{ opacity: active ? 1 : dim ? 0.05 : 0.35, scale: active ? 1.05 : 1 }}
+        animate={{ opacity: haloOpacity, scale }}
         transition={{ duration: 0.35, ease: "easeOut" }}
         style={{ transformOrigin: `${cx}px ${cy}px` }}
       />
@@ -288,10 +410,25 @@ function RegionOverlay({
         stroke={region.isHQ ? "var(--color-emergency-500)" : "var(--color-electric-400)"}
         strokeWidth={1.4}
         strokeDasharray="4 5"
-        animate={{ opacity: active ? 0.85 : 0, scale: active ? 1.05 : 1 }}
+        animate={{ opacity: ringOpacity, scale }}
         transition={{ duration: 0.35, ease: "easeOut" }}
         style={{ transformOrigin: `${cx}px ${cy}px` }}
       />
+      {/* "selected" pulse beat */}
+      {selected && (
+        <motion.ellipse
+          cx={cx}
+          cy={cy}
+          rx={rx}
+          ry={ry}
+          fill="transparent"
+          stroke={region.isHQ ? "var(--color-emergency-400)" : "var(--color-electric-300)"}
+          strokeWidth={1}
+          animate={{ scale: [1.05, 1.18, 1.05], opacity: [0.7, 0, 0.7] }}
+          transition={{ duration: 2.6, repeat: Infinity, ease: "easeOut" }}
+          style={{ transformOrigin: `${cx}px ${cy}px` }}
+        />
+      )}
       {/* invisible bigger hit area so hovering near the cluster works */}
       <ellipse cx={cx} cy={cy} rx={rx + 8} ry={ry + 8} fill="transparent" pointerEvents="all" />
     </g>
@@ -300,7 +437,7 @@ function RegionOverlay({
 
 // -- Panels -----------------------------------------------------------
 
-function OverviewPanel({ totalCities, totalJobs }: { totalCities: number; totalJobs: number }) {
+function PanelShell({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -309,6 +446,34 @@ function OverviewPanel({ totalCities, totalJobs }: { totalCities: number; totalJ
       transition={{ duration: 0.25 }}
       className="rounded-3xl bg-white ring-1 ring-[var(--color-navy-100)] shadow-soft p-6 sm:p-8"
     >
+      {children}
+    </motion.div>
+  );
+}
+
+function BackButton({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] font-semibold text-[var(--color-muted)] hover:text-[var(--color-electric-600)] transition-colors"
+    >
+      <ArrowLeft className="w-3.5 h-3.5" />
+      {children}
+    </button>
+  );
+}
+
+function OverviewPanel({
+  totalCities,
+  totalJobs,
+  onSelectRegion,
+}: {
+  totalCities: number;
+  totalJobs: number;
+  onSelectRegion: (id: RegionId) => void;
+}) {
+  return (
+    <PanelShell>
       <div className="text-xs uppercase tracking-[0.2em] text-[var(--color-electric-600)] font-semibold">
         Service area
       </div>
@@ -316,8 +481,8 @@ function OverviewPanel({ totalCities, totalJobs }: { totalCities: number; totalJ
         Five regions, one truck fleet.
       </h3>
       <p className="mt-3 text-[var(--color-muted)] leading-relaxed">
-        Hover any region on the map to see the jobs we run there, the services that come up most,
-        and what local clients have to say.
+        Click any region or town pin on the map to drill in — recent jobs, top services, and a
+        local quote.
       </p>
 
       <div className="mt-6 grid grid-cols-3 gap-3">
@@ -326,11 +491,12 @@ function OverviewPanel({ totalCities, totalJobs }: { totalCities: number; totalJ
         <Stat value="24/7" label="Emergency line" />
       </div>
 
-      <div className="mt-6 space-y-2">
+      <div className="mt-6 space-y-1">
         {regions.map((r) => (
-          <div
+          <button
             key={r.id}
-            className="flex items-center justify-between text-sm py-2 border-b border-[var(--color-navy-100)] last:border-0"
+            onClick={() => onSelectRegion(r.id)}
+            className="group w-full flex items-center justify-between text-sm py-2.5 px-2 -mx-2 rounded-lg hover:bg-[var(--color-cream-100)] transition-colors text-left"
           >
             <div className="flex items-center gap-2.5">
               <span
@@ -340,26 +506,33 @@ function OverviewPanel({ totalCities, totalJobs }: { totalCities: number; totalJ
               />
               <span className="font-medium text-[var(--color-navy-900)]">{r.label}</span>
             </div>
-            <span className="text-xs text-[var(--color-muted)]">
-              {r.towns.length} towns · {r.jobCount} jobs
-            </span>
-          </div>
+            <div className="flex items-center gap-2 text-xs text-[var(--color-muted)]">
+              <span>
+                {r.towns.length} towns · {r.jobCount} jobs
+              </span>
+              <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[var(--color-electric-600)]" />
+            </div>
+          </button>
         ))}
       </div>
-    </motion.div>
+    </PanelShell>
   );
 }
 
-function RegionPanel({ region }: { region: ServiceRegion }) {
+function RegionPanel({
+  region,
+  onClear,
+  onSelectTown,
+}: {
+  region: ServiceRegion;
+  onClear: () => void;
+  onSelectTown: (name: string) => void;
+}) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.25 }}
-      className="rounded-3xl bg-white ring-1 ring-[var(--color-navy-100)] shadow-soft p-6 sm:p-8"
-    >
-      <div className="flex items-center gap-2">
+    <PanelShell>
+      <BackButton onClick={onClear}>All regions</BackButton>
+
+      <div className="mt-4 flex items-center gap-2">
         <span
           className={`w-2 h-2 rounded-full ${
             region.isHQ ? "bg-[var(--color-emergency-500)]" : "bg-[var(--color-electric-500)]"
@@ -415,22 +588,132 @@ function RegionPanel({ region }: { region: ServiceRegion }) {
         </figcaption>
       </figure>
 
-      <details className="mt-5 group">
-        <summary className="text-xs uppercase tracking-wider text-[var(--color-navy-500)] font-semibold cursor-pointer hover:text-[var(--color-electric-600)] transition-colors">
-          All {region.towns.length} towns in this region
-        </summary>
-        <div className="mt-2 flex flex-wrap gap-1.5">
+      <div className="mt-6">
+        <div className="text-xs uppercase tracking-wider text-[var(--color-navy-500)] font-semibold mb-2">
+          Towns in this region
+        </div>
+        <div className="flex flex-wrap gap-1.5">
           {region.towns.map((t) => (
-            <span
+            <button
               key={t}
-              className="text-xs px-2 py-1 rounded-full bg-[var(--color-navy-50)] text-[var(--color-navy-700)] ring-1 ring-[var(--color-navy-100)]"
+              onClick={() => onSelectTown(t)}
+              className="text-xs px-2.5 py-1 rounded-full bg-[var(--color-navy-50)] text-[var(--color-navy-700)] ring-1 ring-[var(--color-navy-100)] hover:ring-[var(--color-electric-500)] hover:text-[var(--color-electric-700)] transition-colors"
             >
               {t}
-            </span>
+            </button>
           ))}
         </div>
-      </details>
-    </motion.div>
+      </div>
+    </PanelShell>
+  );
+}
+
+function TownPanel({
+  townName,
+  onSelectRegion,
+  onClear,
+}: {
+  townName: string;
+  onSelectRegion: (id: RegionId) => void;
+  onClear: () => void;
+}) {
+  const regionId = townToRegion(townName);
+  const region = regionId ? regions.find((r) => r.id === regionId) : undefined;
+  const city = pinNameToCity(townName);
+  const distance = city ? Math.round(milesFromHq(city)) : null;
+  const isHq = townName === "Blackwood";
+
+  return (
+    <PanelShell>
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-1.5 flex-wrap text-xs text-[var(--color-muted)]">
+        <button
+          onClick={onClear}
+          className="uppercase tracking-[0.18em] font-semibold hover:text-[var(--color-electric-600)] transition-colors"
+        >
+          All regions
+        </button>
+        {region && (
+          <>
+            <ChevronRight className="w-3 h-3 opacity-50" />
+            <button
+              onClick={() => onSelectRegion(region.id)}
+              className="hover:text-[var(--color-electric-600)] transition-colors"
+            >
+              {region.label}
+            </button>
+          </>
+        )}
+        <ChevronRight className="w-3 h-3 opacity-50" />
+        <span className="text-[var(--color-navy-700)] font-semibold">{townName}</span>
+      </div>
+
+      <div className="mt-5 flex items-center gap-2">
+        <MapPin
+          className={`w-4 h-4 ${
+            isHq ? "text-[var(--color-emergency-500)]" : "text-[var(--color-electric-600)]"
+          }`}
+        />
+        <div className="text-xs uppercase tracking-[0.2em] text-[var(--color-electric-600)] font-semibold">
+          {isHq ? "Our HQ" : `Town · ${city?.state ?? ""}`}
+        </div>
+      </div>
+      <h3 className="mt-2 font-display text-3xl text-[var(--color-navy-900)] leading-tight">
+        {townName}
+        {isHq && (
+          <span className="text-base font-sans font-semibold text-[var(--color-emergency-500)] ml-2">
+            HQ
+          </span>
+        )}
+      </h3>
+
+      <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-[var(--color-electric-50,#eaf2ff)] px-3 py-1.5 ring-1 ring-[var(--color-electric-200,#cfe0ff)]">
+        <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-electric-500)] animate-pulse" />
+        <span className="text-xs font-semibold text-[var(--color-electric-700)] uppercase tracking-wider">
+          Yes — we cover {townName}
+        </span>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        {distance !== null && (
+          <Stat value={isHq ? "HQ" : `~${distance}mi`} label={isHq ? "Our home base" : "From our HQ"} />
+        )}
+        {region && <Stat value={region.jobCount} label="Jobs in region" />}
+      </div>
+
+      {region && (
+        <>
+          <div className="mt-6">
+            <div className="text-xs uppercase tracking-wider text-[var(--color-navy-500)] font-semibold mb-2">
+              Recent work in the {region.label} area
+            </div>
+            <div className="grid grid-cols-3 gap-2.5">
+              {region.jobs.map((job) => (
+                <JobCard key={job.title} title={job.title} icon={job.icon} hq={!!region.isHQ} />
+              ))}
+            </div>
+          </div>
+
+          <figure className="mt-6 rounded-2xl bg-[var(--color-cream-100)] p-4 border-l-2 border-[var(--color-electric-500)]">
+            <blockquote className="text-sm italic text-[var(--color-ink-soft)] leading-relaxed">
+              &ldquo;{region.quote.text}&rdquo;
+            </blockquote>
+            <figcaption className="mt-2 text-xs text-[var(--color-muted)]">
+              — {region.quote.author}
+              {region.quote.town === townName ? "" : `, ${region.quote.town}`}
+            </figcaption>
+          </figure>
+        </>
+      )}
+
+      <a
+        href={LYONS.phoneTel ? `tel:${LYONS.phoneTel}` : `tel:${LYONS.phone.replace(/\D/g, "")}`}
+        className="mt-6 flex items-center justify-center gap-2 rounded-2xl bg-[var(--color-navy-900)] text-white py-3.5 px-4 font-semibold hover:bg-[var(--color-emergency-700)] transition-colors"
+      >
+        <Phone className="w-4 h-4" />
+        Call {LYONS.phone}
+      </a>
+    </PanelShell>
   );
 }
 

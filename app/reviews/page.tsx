@@ -82,14 +82,14 @@ export default function ReviewsPage() {
           <Marquee speed={95}>
             {rowA.map((r, i) => (
               <div key={`a-${i}`} className="px-2.5">
-                <ReviewTile r={r} variant={i % 2 === 0 ? "tall" : "short"} />
+                <ReviewTile r={r} />
               </div>
             ))}
           </Marquee>
           <Marquee speed={95} reverse>
             {rowB.map((r, i) => (
               <div key={`b-${i}`} className="px-2.5">
-                <ReviewTile r={r} variant={i % 2 === 0 ? "short" : "tall"} />
+                <ReviewTile r={r} />
               </div>
             ))}
           </Marquee>
@@ -197,18 +197,10 @@ function StatBlock({
   );
 }
 
-function ReviewTile({
-  r,
-  variant,
-}: {
-  r: (typeof reviews)[number];
-  variant: "tall" | "short";
-}) {
+function ReviewTile({ r }: { r: (typeof reviews)[number] }) {
   return (
     <article
-      className={`relative rounded-3xl bg-white p-6 ring-1 ring-[var(--color-navy-200)] shadow-[var(--shadow-soft)] w-[340px] ${
-        variant === "tall" ? "min-h-[260px]" : "min-h-[200px]"
-      }`}
+      className="relative rounded-3xl bg-white p-6 ring-1 ring-[var(--color-navy-200)] shadow-[var(--shadow-soft)] w-[340px] h-[260px] flex flex-col"
     >
       <Quote className="absolute top-5 right-5 w-6 h-6 text-[var(--color-brass-300)]/40" />
       <div className="flex items-center gap-1">
@@ -223,7 +215,7 @@ function ReviewTile({
       <p className="mt-4 text-[0.875rem] text-[var(--color-ink)] leading-relaxed line-clamp-6">
         &ldquo;{r.text}&rdquo;
       </p>
-      <div className="mt-4 pt-3 border-t border-[var(--color-navy-100)] text-xs flex items-center justify-between">
+      <div className="mt-auto pt-3 border-t border-[var(--color-navy-100)] text-xs flex items-center justify-between">
         <div>
           <div className="font-semibold text-[var(--color-navy-900)]">{r.author}</div>
           {r.city && <div className="text-[var(--color-muted)] mt-0.5">{r.city}</div>}

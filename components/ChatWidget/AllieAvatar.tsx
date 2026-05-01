@@ -23,22 +23,20 @@ export function AllieAvatar({
   return (
     <span
       aria-hidden
-      className={cn(
-        "relative shrink-0 overflow-hidden rounded-full ring-2 ring-white shadow-sm bg-[var(--color-electric-600)]",
-        sizeClasses[size],
-        className,
-      )}
+      className={cn("relative inline-block shrink-0", sizeClasses[size], className)}
     >
-      <Image
-        src="/allie.png"
-        alt=""
-        width={sizePx[size]}
-        height={sizePx[size]}
-        className="w-full h-full object-cover"
-        priority={size === "lg"}
-      />
+      <span className="block w-full h-full overflow-hidden rounded-full ring-2 ring-white shadow-sm bg-[var(--color-electric-600)]">
+        <Image
+          src="/allie.png"
+          alt=""
+          width={sizePx[size]}
+          height={sizePx[size]}
+          className="w-full h-full object-cover"
+          priority={size === "lg"}
+        />
+      </span>
       <span
-        className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-white"
+        className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-white"
         aria-hidden
       />
     </span>
