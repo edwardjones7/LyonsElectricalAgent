@@ -6,6 +6,20 @@ import { Reveal, RevealStagger, RevealItem } from "@/components/ui/Reveal";
 export const metadata = { title: "Our Team" };
 
 export default function TeamPage() {
+  const teamSize = leadership.length + fieldElectricians.length;
+  const masters = fieldElectricians.filter((m) => m.role === "Master Electrician");
+  const electricians = fieldElectricians.filter((m) => m.role === "Electrician");
+
+  const stats: { value: string; label: string }[] = [
+    { value: String(teamSize), label: "strong" },
+    { value: `${LYONS.yearsInBusiness}+`, label: `years in ${LYONS.hq}` },
+    {
+      value: `${LYONS.googleRating.toFixed(1)}★`,
+      label: `across ${LYONS.googleReviewCount} reviews`,
+    },
+    { value: "Family-owned", label: "multi-generational" },
+  ];
+
   return (
     <>
       <PageHero
@@ -15,48 +29,80 @@ export default function TeamPage() {
         eyebrowTone="brass"
       />
 
-      <section className="pb-12">
+      <section className="bg-[var(--color-cream-100)] py-16 lg:py-20">
         <div className="mx-auto max-w-5xl px-5 sm:px-8">
-          <Reveal>
-            <div className="rounded-3xl bg-[var(--color-cream-100)] ring-1 ring-[var(--color-brass-200)] p-5 lg:p-6 text-sm text-[var(--color-navy-800)] leading-relaxed">
-              <strong className="text-[var(--color-navy-900)]">A note on these portraits:</strong>{" "}
-              Real headshots of our team are coming soon. The placeholders below are stand-ins
-              styled in our brand colors so you can put a name to the role today.
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="pb-20">
-        <div className="mx-auto max-w-5xl px-5 sm:px-8">
-          <Reveal>
-            <h2 className="text-[var(--color-navy-900)] mb-8">Leadership</h2>
-          </Reveal>
-          <RevealStagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {leadership.map((m) => (
-              <RevealItem key={m.name} direction="up">
-                <PersonCard name={m.name} role={m.role} accent="navy" />
+          <RevealStagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {stats.map((s) => (
+              <RevealItem key={s.label} direction="up">
+                <div className="rounded-3xl bg-white ring-1 ring-[var(--color-navy-200)] p-6 text-center h-full">
+                  <div
+                    className={`font-display text-[var(--color-navy-900)] leading-none ${
+                      s.value.length > 4 ? "text-3xl lg:text-4xl" : "text-5xl lg:text-6xl"
+                    }`}
+                  >
+                    {s.value}
+                  </div>
+                  <div className="mt-3 text-sm text-[var(--color-muted)]">{s.label}</div>
+                </div>
               </RevealItem>
             ))}
           </RevealStagger>
         </div>
       </section>
 
-      <section className="pb-28 bg-[var(--color-cream-100)] py-20">
-        <div className="mx-auto max-w-5xl px-5 sm:px-8">
+      <section className="py-16 lg:py-20">
+        <div className="mx-auto max-w-3xl px-5 sm:px-8 prose-lyons">
           <Reveal>
-            <h2 className="text-[var(--color-navy-900)] mb-2">Field electricians</h2>
-            <p className="text-[var(--color-ink-soft)] mb-8">
-              Master and journeyman electricians who carry the work. Many of them are named in
-              specific Google reviews.
+            <p>
+              Lyons is family-owned, multi-generational. Arthur Carroll runs the company and
+              answers most of the calls himself. His son Tom handles estimates. Gene Goodman
+              keeps operations running. Allie and Jean coordinate the schedule and the paperwork.
+              Out in the field, our master electricians and electricians carry the work — the
+              same names that show up, by name, in our Google reviews.
             </p>
           </Reveal>
-          <RevealStagger stagger={0.04} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {fieldElectricians.map((m, i) => (
-              <RevealItem key={m.name} direction="up">
-                <PersonCard name={m.name} role={m.role} accent={i % 3 === 0 ? "brass" : "navy"} compact />
-              </RevealItem>
-            ))}
+          <Reveal>
+            <p className="text-xl text-[var(--color-navy-900)] font-display italic leading-snug border-l-4 border-[var(--color-brass-500)] pl-5 my-8">
+              “Every five-star review names a real person on our crew.”
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="pb-28 bg-[var(--color-cream-100)] py-20">
+        <div className="mx-auto max-w-4xl px-5 sm:px-8">
+          <RevealStagger className="space-y-16">
+            <RevealItem direction="up">
+              <RosterGroup heading="Leadership & office">
+                <ul className="divide-y divide-[var(--color-brass-200)] border-y border-[var(--color-brass-200)]">
+                  {leadership.map((m) => (
+                    <li
+                      key={m.name}
+                      className="py-4 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1"
+                    >
+                      <span className="font-display text-lg text-[var(--color-navy-900)]">
+                        {m.name}
+                      </span>
+                      <span className="text-sm text-[var(--color-muted)] sm:text-right">
+                        {m.role}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </RosterGroup>
+            </RevealItem>
+
+            <RevealItem direction="up">
+              <RosterGroup heading="Master electricians">
+                <NameColumns names={masters.map((m) => m.name)} />
+              </RosterGroup>
+            </RevealItem>
+
+            <RevealItem direction="up">
+              <RosterGroup heading="Electricians">
+                <NameColumns names={electricians.map((m) => m.name)} />
+              </RosterGroup>
+            </RevealItem>
           </RevealStagger>
         </div>
       </section>
@@ -64,54 +110,28 @@ export default function TeamPage() {
   );
 }
 
-function PersonCard({
-  name,
-  role,
-  accent,
-  compact,
-}: {
-  name: string;
-  role: string;
-  accent: "navy" | "brass";
-  compact?: boolean;
-}) {
-  const initials = name
-    .split(" ")
-    .map((s) => s[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
+function RosterGroup({ heading, children }: { heading: string; children: React.ReactNode }) {
   return (
-    <div
-      className={`group rounded-3xl bg-white ring-1 ring-[var(--color-navy-200)] hover:ring-[var(--color-navy-700)] hover:-translate-y-1 hover:shadow-[var(--shadow-pop)] transition-all overflow-hidden ${
-        compact ? "p-5" : "p-6"
-      }`}
-    >
-      <div
-        className={`relative aspect-square w-full rounded-2xl mb-4 grid place-items-center overflow-hidden transition-transform duration-300 group-hover:scale-[1.02] ${
-          accent === "navy"
-            ? "bg-gradient-to-br from-[var(--color-navy-700)] via-[var(--color-navy-800)] to-[var(--color-navy-950)]"
-            : "bg-gradient-to-br from-[var(--color-brass-400)] via-[var(--color-brass-600)] to-[var(--color-brass-800)]"
-        }`}
-      >
-        {/* Atmospheric overlay pattern */}
-        <div
-          className="absolute inset-0 opacity-25"
-          style={{
-            background:
-              "radial-gradient(circle at 30% 20%, rgba(255,255,255,0.4), transparent 50%)",
-          }}
-        />
-        <span className="relative font-display text-5xl text-white/95 leading-none select-none drop-shadow">
-          {initials}
-        </span>
-        <div className="absolute bottom-2 left-2 right-2 text-[0.6rem] uppercase tracking-wider text-white/65 text-center">
-          Portrait coming soon
-        </div>
+    <div>
+      <div className="text-xs uppercase tracking-[0.2em] text-[var(--color-brass-700)] mb-5">
+        {heading}
       </div>
-      <div className="font-display text-lg text-[var(--color-navy-900)] leading-snug">{name}</div>
-      <div className="text-sm text-[var(--color-muted)] mt-0.5">{role}</div>
+      {children}
     </div>
+  );
+}
+
+function NameColumns({ names }: { names: string[] }) {
+  return (
+    <ul className="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-3 border-y border-[var(--color-brass-200)] py-4">
+      {names.map((name) => (
+        <li
+          key={name}
+          className="font-display text-lg text-[var(--color-navy-900)] leading-snug"
+        >
+          {name}
+        </li>
+      ))}
+    </ul>
   );
 }

@@ -37,7 +37,7 @@ export function ServiceAreaTeaser() {
 
         <Reveal direction="right" delay={0.15} className="lg:col-span-7">
           <div className="relative">
-            <ServiceAreaMap className="w-full aspect-[4/3]" />
+            <ServiceAreaMap className="w-full aspect-[4/5]" />
           </div>
         </Reveal>
       </div>

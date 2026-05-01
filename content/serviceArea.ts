@@ -1,45 +1,57 @@
+export type LabelPos =
+  | "right"
+  | "left"
+  | "top"
+  | "bottom"
+  | "top-right"
+  | "top-left"
+  | "bottom-right"
+  | "bottom-left";
+
 export type ServiceCity = {
   name: string;
   state: "NJ" | "PA" | "DE";
   /** Approximate latitude/longitude — used by ServiceAreaMap for real geographic placement. */
   lat: number;
   lng: number;
+  /** Where the town label sits relative to the pin. Hand-tuned for the homepage map to avoid overlap in dense clusters. Defaults to "right". */
+  labelPos?: LabelPos;
 };
 
 // Coordinates are approximate town centers, sourced from public geocoding data.
 // Precision to four decimals is more than enough for a stylized regional map.
 export const cities: ServiceCity[] = [
-  { name: "Blackwood", state: "NJ", lat: 39.8023, lng: -75.0671 },
-  { name: "Cherry Hill", state: "NJ", lat: 39.9348, lng: -74.9921 },
-  { name: "Mt. Laurel", state: "NJ", lat: 39.9343, lng: -74.8907 },
-  { name: "Marlton", state: "NJ", lat: 39.8912, lng: -74.9213 },
-  { name: "Burlington", state: "NJ", lat: 40.0717, lng: -74.8632 },
-  { name: "Willingboro", state: "NJ", lat: 40.0287, lng: -74.8843 },
-  { name: "Beverly", state: "NJ", lat: 40.0651, lng: -74.9182 },
-  { name: "Riverside", state: "NJ", lat: 40.0301, lng: -74.9590 },
-  { name: "Mt. Holly", state: "NJ", lat: 39.9929, lng: -74.7876 },
-  { name: "Medford Lakes", state: "NJ", lat: 39.8643, lng: -74.8049 },
-  { name: "Berlin", state: "NJ", lat: 39.7912, lng: -74.9293 },
-  { name: "Sicklerville", state: "NJ", lat: 39.7445, lng: -74.9710 },
-  { name: "Williamstown", state: "NJ", lat: 39.6873, lng: -74.9888 },
-  { name: "Glassboro", state: "NJ", lat: 39.7023, lng: -75.1118 },
-  { name: "Swedesboro", state: "NJ", lat: 39.7479, lng: -75.3110 },
-  { name: "Mullica Hill", state: "NJ", lat: 39.7398, lng: -75.2230 },
-  { name: "Salem", state: "NJ", lat: 39.5712, lng: -75.4671 },
-  { name: "Millville", state: "NJ", lat: 39.4023, lng: -75.0392 },
-  { name: "Vineland", state: "NJ", lat: 39.4864, lng: -75.0257 },
-  { name: "Elmer", state: "NJ", lat: 39.5934, lng: -75.1696 },
-  { name: "Cape May", state: "NJ", lat: 38.9351, lng: -74.9060 },
-  { name: "Voorhees", state: "NJ", lat: 39.8512, lng: -74.9540 },
-  { name: "Camden", state: "NJ", lat: 39.9259, lng: -75.1196 },
-  { name: "Wenonah", state: "NJ", lat: 39.7956, lng: -75.1474 },
-  { name: "Bellmawr", state: "NJ", lat: 39.8662, lng: -75.0935 },
-  { name: "Carneys Point", state: "NJ", lat: 39.7115, lng: -75.4732 },
-  { name: "Marlboro", state: "NJ", lat: 40.3151, lng: -74.2466 },
-  { name: "Fallsington", state: "PA", lat: 40.1834, lng: -74.7641 },
-  { name: "Newtown", state: "PA", lat: 40.2287, lng: -74.9363 },
-  { name: "Haverford", state: "PA", lat: 40.0123, lng: -75.3043 },
-  { name: "Wilmington", state: "DE", lat: 39.7391, lng: -75.5398 },
+  { name: "Blackwood", state: "NJ", lat: 39.8023, lng: -75.0671, labelPos: "bottom" },
+  { name: "Cherry Hill", state: "NJ", lat: 39.9348, lng: -74.9921, labelPos: "top-right" },
+  { name: "Mt. Laurel", state: "NJ", lat: 39.9343, lng: -74.8907, labelPos: "right" },
+  { name: "Marlton", state: "NJ", lat: 39.8912, lng: -74.9213, labelPos: "bottom-right" },
+  { name: "Burlington", state: "NJ", lat: 40.0717, lng: -74.8632, labelPos: "top-right" },
+  { name: "Willingboro", state: "NJ", lat: 40.0287, lng: -74.8843, labelPos: "bottom-right" },
+  { name: "Beverly", state: "NJ", lat: 40.0651, lng: -74.9182, labelPos: "top-left" },
+  { name: "Riverside", state: "NJ", lat: 40.0301, lng: -74.9590, labelPos: "bottom-left" },
+  { name: "Mt. Holly", state: "NJ", lat: 39.9929, lng: -74.7876, labelPos: "right" },
+  { name: "Medford Lakes", state: "NJ", lat: 39.8643, lng: -74.8049, labelPos: "right" },
+  { name: "Berlin", state: "NJ", lat: 39.7912, lng: -74.9293, labelPos: "right" },
+  { name: "Sicklerville", state: "NJ", lat: 39.7445, lng: -74.9710, labelPos: "right" },
+  { name: "Williamstown", state: "NJ", lat: 39.6873, lng: -74.9888, labelPos: "bottom-right" },
+  { name: "Glassboro", state: "NJ", lat: 39.7023, lng: -75.1118, labelPos: "bottom-left" },
+  { name: "Swedesboro", state: "NJ", lat: 39.7479, lng: -75.3110, labelPos: "left" },
+  { name: "Mullica Hill", state: "NJ", lat: 39.7398, lng: -75.2230, labelPos: "left" },
+  { name: "Salem", state: "NJ", lat: 39.5712, lng: -75.4671, labelPos: "left" },
+  { name: "Millville", state: "NJ", lat: 39.4023, lng: -75.0392, labelPos: "left" },
+  { name: "Vineland", state: "NJ", lat: 39.4864, lng: -75.0257, labelPos: "right" },
+  { name: "Elmer", state: "NJ", lat: 39.5934, lng: -75.1696, labelPos: "right" },
+  { name: "Cape May", state: "NJ", lat: 38.9351, lng: -74.9060, labelPos: "top" },
+  { name: "Voorhees", state: "NJ", lat: 39.8512, lng: -74.9540, labelPos: "right" },
+  { name: "Camden", state: "NJ", lat: 39.9259, lng: -75.1196, labelPos: "left" },
+  { name: "Wenonah", state: "NJ", lat: 39.7956, lng: -75.1474, labelPos: "left" },
+  { name: "Bellmawr", state: "NJ", lat: 39.8662, lng: -75.0935, labelPos: "left" },
+  { name: "Carneys Point", state: "NJ", lat: 39.7115, lng: -75.4732, labelPos: "bottom-left" },
+  { name: "Marlboro", state: "NJ", lat: 40.3151, lng: -74.2466, labelPos: "left" },
+  { name: "Fallsington", state: "PA", lat: 40.1834, lng: -74.7641, labelPos: "right" },
+  { name: "Newtown", state: "PA", lat: 40.2287, lng: -74.9363, labelPos: "left" },
+  { name: "Haverford", state: "PA", lat: 40.0123, lng: -75.3043, labelPos: "left" },
+  { name: "Wilmington", state: "DE", lat: 39.7391, lng: -75.5398, labelPos: "top-left" },
 ];
 
 export const citiesByState = {
