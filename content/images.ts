@@ -28,10 +28,10 @@ export type Photo = {
 };
 
 export const heroPanel: Photo = {
-  src: "https://images.unsplash.com/photo-1635335874521-7987db781153",
-  alt: "Master electrician working on the inside of an open electrical panel.",
-  credit: "Mostafa Mahmoudi · Unsplash",
-  aspect: 4 / 5,
+  src: "/hero.png",
+  alt: "Lyons lineman on a power pole at night, arc-flash sparks lighting up the sky.",
+  credit: "Lyons Electrical",
+  aspect: 16 / 7,
 };
 
 export const heroSecondary: Photo = {

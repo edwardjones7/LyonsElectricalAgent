@@ -60,7 +60,7 @@ export function SiteFooter() {
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-[var(--color-navy-300)]">
           <div>© {new Date().getFullYear()} {LYONS.legalName}. All rights reserved.</div>
           <div className="max-w-xl text-[var(--color-navy-300)]">
-            Allie&rsquo;s a digital stand-in for after-hours messages. Anything urgent — sparks, smoke, water near electrical — call {LYONS.phone} and a master electrician picks up day or night.
+            Ava&rsquo;s a digital assistant for after-hours messages. Anything urgent — sparks, smoke, water near electrical — call {LYONS.phone} and a master electrician picks up day or night.
           </div>
         </div>
       </div>

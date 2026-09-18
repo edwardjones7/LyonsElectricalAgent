@@ -16,7 +16,7 @@ export function VoiceControls({
   onToggleListen: () => void;
   onExitVoice: () => void;
 }) {
-  const status = speaking ? "Allie is talking..." : listening ? "Listening..." : "Tap the mic to talk";
+  const status = speaking ? "Ava is talking..." : listening ? "Listening..." : "Tap the mic to talk";
 
   return (
     <div className="border-t border-[var(--color-navy-200)] bg-[var(--color-cream)] px-4 py-5 flex flex-col items-center gap-3 shrink-0">

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { AllieAvatar } from "./AllieAvatar";
+import { AvaAvatar } from "./AvaAvatar";
 
 export function TypingRow() {
   return (
@@ -12,9 +12,9 @@ export function TypingRow() {
       transition={{ duration: 0.2 }}
       className="flex items-end gap-2 max-w-[88%]"
     >
-      <AllieAvatar size="sm" />
+      <AvaAvatar size="sm" />
       <div className="bg-white border border-[var(--color-navy-200)] rounded-2xl rounded-bl-md px-4 py-3 inline-flex items-center gap-2">
-        <span className="text-xs text-[var(--color-muted)]">Allie&rsquo;s typing</span>
+        <span className="text-xs text-[var(--color-muted)]">Ava&rsquo;s typing</span>
         <span className="flex items-end gap-1 h-3">
           <Dot delay={0} />
           <Dot delay={0.15} />

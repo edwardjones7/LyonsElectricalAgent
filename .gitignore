@@ -10,3 +10,5 @@ coverage
 
 CLAUDE.md 
 .claude
+# local source assets (not served; public/ is what ships)
+images/

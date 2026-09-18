@@ -6,7 +6,7 @@
  * `text-...` class on the parent. The bolt is always painted in
  * `var(--color-electric-500)` so the brand mark remains recognisable.
  *
- * Used as: chat avatar (Allie), dark-surface wordmark mark, brand inflection
+ * Used as: chat avatar (Ava), dark-surface wordmark mark, brand inflection
  * points (about, hero accents).
  */
 export function LELogo({ className }: { className?: string }) {

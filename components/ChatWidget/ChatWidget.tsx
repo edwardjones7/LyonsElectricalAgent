@@ -2,13 +2,13 @@
 
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { MessageSquareText, X, Send, Phone, Loader2, BookOpen, CheckCircle2, Mic, MicOff } from "lucide-react";
+import { X, Send, Phone, Loader2, BookOpen, CheckCircle2, Mic, MicOff } from "lucide-react";
 import Link from "next/link";
 import { LYONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useChatStore } from "./chatStore";
 import { DangerPanel } from "./DangerPanel";
-import { AllieAvatar } from "./AllieAvatar";
+import { AvaAvatar } from "./AvaAvatar";
 import { TypingRow } from "./TypingRow";
 import { VoiceControls } from "./VoiceControls";
 import { useVoiceSession } from "./useVoiceSession";
@@ -181,46 +181,80 @@ export function ChatWidget() {
   return (
     <>
       {/* Floating launcher (desktop) */}
-      <motion.button
-        type="button"
-        onClick={() => setOpen(!open)}
-        aria-label={open ? "Close chat" : "Open chat with Allie at Lyons"}
-        whileHover={{ y: -2 }}
-        whileTap={{ scale: 0.96 }}
-        className={cn(
-          "hidden lg:inline-flex fixed bottom-6 right-6 z-50 items-center gap-2.5 rounded-full bg-[var(--color-navy-900)] hover:bg-[var(--color-navy-800)] text-white px-5 h-14 shadow-[var(--shadow-pop)] transition-colors",
-          !open && "ambient-pulse",
-        )}
+      <motion.div
+        className="hidden lg:block fixed bottom-6 right-6 z-50"
+        animate={!open ? { y: [0, -4, 0] } : { y: 0 }}
+        transition={
+          !open
+            ? { duration: 3.2, repeat: Infinity, ease: "easeInOut" }
+            : { duration: 0.3 }
+        }
       >
-        <span className="relative grid place-items-center w-6 h-6">
-          <AnimatePresence mode="wait" initial={false}>
-            {open ? (
-              <motion.span
-                key="x"
-                initial={{ rotate: -90, opacity: 0 }}
-                animate={{ rotate: 0, opacity: 1 }}
-                exit={{ rotate: 90, opacity: 0 }}
-                transition={{ duration: 0.18 }}
-                className="absolute inset-0 grid place-items-center"
-              >
-                <X className="w-5 h-5" />
-              </motion.span>
-            ) : (
-              <motion.span
-                key="msg"
-                initial={{ rotate: 90, opacity: 0 }}
-                animate={{ rotate: 0, opacity: 1 }}
-                exit={{ rotate: -90, opacity: 0 }}
-                transition={{ duration: 0.18 }}
-                className="absolute inset-0 grid place-items-center"
-              >
-                <MessageSquareText className="w-5 h-5" />
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </span>
-        <span className="font-medium">{open ? "Close chat" : "Message Allie"}</span>
-      </motion.button>
+        {/* Pulsing halo rings — only when closed, drawing the eye */}
+        {!open && (
+          <>
+            <motion.span
+              aria-hidden
+              className="absolute inset-0 rounded-full bg-[var(--color-brass-500)] -z-10"
+              animate={{ scale: [1, 1.28, 1], opacity: [0.22, 0, 0.22] }}
+              transition={{ duration: 3.2, repeat: Infinity, ease: "easeOut" }}
+            />
+            <motion.span
+              aria-hidden
+              className="absolute inset-0 rounded-full bg-[var(--color-electric-400)] -z-10"
+              animate={{ scale: [1, 1.16, 1], opacity: [0.18, 0, 0.18] }}
+              transition={{ duration: 3.2, repeat: Infinity, ease: "easeOut", delay: 1.6 }}
+            />
+          </>
+        )}
+
+        <motion.button
+          type="button"
+          onClick={() => setOpen(!open)}
+          aria-label={open ? "Close chat" : "Open chat with Ava at Lyons"}
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.96 }}
+          className={cn(
+            "relative inline-flex items-center gap-3 rounded-full bg-[var(--color-navy-900)] hover:bg-[var(--color-navy-800)] text-white pl-2.5 pr-6 h-16 ring-2 ring-[var(--color-brass-500)]/55 hover:ring-[var(--color-brass-400)] shadow-[var(--shadow-pop)] transition-colors",
+          )}
+        >
+          <span className="relative grid place-items-center w-11 h-11">
+            <AnimatePresence mode="wait" initial={false}>
+              {open ? (
+                <motion.span
+                  key="x"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                  className="absolute inset-0 grid place-items-center"
+                >
+                  <X className="w-6 h-6" />
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="ava"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                  className="absolute inset-0 grid place-items-center"
+                >
+                  <AvaAvatar size="md" />
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </span>
+          <span className="flex flex-col items-start leading-tight">
+            <span className="text-[11px] uppercase tracking-[0.16em] text-[var(--color-brass-300)] font-bold">
+              {open ? "" : "Ask Ava"}
+            </span>
+            <span className="font-semibold text-[15px]">
+              {open ? "Close chat" : "Message us"}
+            </span>
+          </span>
+        </motion.button>
+      </motion.div>
 
       <AnimatePresence>
         {open && (
@@ -251,13 +285,13 @@ export function ChatWidget() {
               aria-hidden
               className="hidden lg:block absolute -bottom-2 right-12 w-4 h-4 rotate-45 bg-[var(--color-cream)] border-r border-b border-[var(--color-navy-200)] z-[-1]"
             />
-            {/* Header — Allie identity */}
+            {/* Header — Ava identity */}
             <div className="bg-[var(--color-navy-900)] text-white px-4 py-3.5 flex items-center justify-between gap-3 shrink-0">
               <div className="flex items-center gap-3 min-w-0">
-                <AllieAvatar size="md" />
+                <AvaAvatar size="md" />
                 <div className="min-w-0">
                   <div className="font-industrial text-base font-extrabold tracking-tight uppercase leading-none">
-                    Allie
+                    Ava
                   </div>
                   <div className="text-[0.7rem] text-[var(--color-navy-200)] mt-1.5 leading-none">
                     Responds in seconds.
@@ -275,8 +309,8 @@ export function ChatWidget() {
                         ? "bg-[var(--color-electric-500)] hover:bg-[var(--color-electric-400)] text-white"
                         : "hover:bg-white/10 text-white",
                     )}
-                    aria-label={voiceMode ? "Turn off voice mode" : "Talk to Allie out loud"}
-                    title={voiceMode ? "Turn off voice mode" : "Talk to Allie out loud"}
+                    aria-label={voiceMode ? "Turn off voice mode" : "Talk to Ava out loud"}
+                    title={voiceMode ? "Turn off voice mode" : "Talk to Ava out loud"}
                   >
                     {voiceMode ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                   </button>
@@ -397,10 +431,10 @@ function Greeting() {
       className="space-y-3"
     >
       <div className="flex items-end gap-2 max-w-[92%]">
-        <AllieAvatar size="sm" />
+        <AvaAvatar size="sm" />
         <div className="bg-white border border-[var(--color-navy-200)] rounded-2xl rounded-bl-md px-4 py-3 flex-1">
           <div className="font-display text-[1.0625rem] text-[var(--color-navy-900)] leading-snug">
-            Hey — Allie here.
+            Hey — Ava here.
           </div>
           <p className="text-sm text-[var(--color-ink-soft)] mt-1.5 leading-relaxed">
             I&rsquo;m on 24/7 as the chat assistant for Lyons. I can help with quotes, schedules, our service area, and the basic stuff. If anything&rsquo;s urgent — sparks, smoke, water near electrical — tap call up top and one of our master electricians picks up before the second ring.
@@ -446,7 +480,7 @@ function MessageBubble({
   }
 
   // Assistant message — but if it's still streaming with no content yet, show
-  // the "Allie's typing…" row instead of an empty bubble. As soon as a delta
+  // the "Ava's typing…" row instead of an empty bubble. As soon as a delta
   // arrives, swap to the proper bubble.
   if (message.state === "streaming" && message.content.length === 0) {
     return <TypingRow />;
@@ -463,14 +497,14 @@ function MessageBubble({
     >
       <div className="flex items-end gap-2 max-w-[92%]">
         {isFirstInGroup ? (
-          <AllieAvatar size="sm" />
+          <AvaAvatar size="sm" />
         ) : (
           <span className="w-7 shrink-0" aria-hidden />
         )}
         <div className="flex-1 min-w-0">
           {isFirstInGroup && (
             <div className="text-[0.7rem] uppercase tracking-wider text-[var(--color-muted)] mb-1 ml-1 font-semibold">
-              Allie
+              Ava
             </div>
           )}
           <div className="bg-white border border-[var(--color-navy-200)] rounded-2xl rounded-bl-md px-4 py-3">
@@ -547,7 +581,10 @@ function applyEvent(
         case "text":
           return { ...m, content: m.content + evt.delta };
         case "danger":
-          return { ...m, state: "danger", content: "" };
+          // Placeholder content keeps the message non-empty for the next API
+          // call (the schema rejects empty strings). The UI ignores this text
+          // and renders the DangerPanel based on state === "danger".
+          return { ...m, state: "danger", content: "(emergency call panel shown)" };
         case "resource":
           return { ...m, resourceSlug: evt.slug };
         case "callback":

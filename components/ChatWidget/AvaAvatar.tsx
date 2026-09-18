@@ -13,7 +13,7 @@ const sizePx = {
   lg: 44,
 } as const;
 
-export function AllieAvatar({
+export function AvaAvatar({
   size = "md",
   className,
 }: {
@@ -27,7 +27,7 @@ export function AllieAvatar({
     >
       <span className="block w-full h-full overflow-hidden rounded-full ring-2 ring-white shadow-sm bg-[var(--color-electric-600)]">
         <Image
-          src="/allie.png"
+          src="/ava.png"
           alt=""
           width={sizePx[size]}
           height={sizePx[size]}

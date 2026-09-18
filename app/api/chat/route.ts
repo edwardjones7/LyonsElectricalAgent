@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, HarmBlockThreshold, HarmCategory } from "@google/genai";
 import Groq from "groq-sdk";
 import { NextRequest } from "next/server";
 import { z } from "zod";
@@ -25,11 +25,21 @@ const requestSchema = z.object({
 type ChatMsg = z.infer<typeof requestSchema>["messages"][number];
 
 // Fallback chain — tried in order. First one to successfully yield a token wins.
-type ProviderId = "gemini-2.5-flash" | "gemini-2.0-flash" | "groq-llama-3.3-70b";
+// Order: best quality first, lighter free-tier variants next, then cross-provider.
+// Free Gemini "lite" models have substantially higher daily quotas than full flash,
+// so they're our buffer when the prime models hit their RPD ceiling.
+type ProviderId =
+  | "gemini-2.5-flash"
+  | "gemini-2.5-flash-lite"
+  | "gemini-2.0-flash-lite"
+  | "gemini-1.5-flash"
+  | "groq-llama-3.3-70b";
 
 const PROVIDER_CHAIN: ProviderId[] = [
   "gemini-2.5-flash",
-  "gemini-2.0-flash",
+  "gemini-2.5-flash-lite",
+  "gemini-2.0-flash-lite",
+  "gemini-1.5-flash",
   "groq-llama-3.3-70b",
 ];
 
@@ -95,28 +105,34 @@ export async function POST(req: NextRequest) {
     let resourceEmitted = false;
     let callCtaEmitted = false;
 
+    // Tolerant matchers: accept whitespace inside the brackets and underscores
+    // in slugs, since model output sometimes drifts from the exact format.
+    const ESCALATE_RE = /\[\[\s*ESCALATE\s*\]\]/i;
+    const CALL_CTA_RE = /\[\[\s*CALL[_-]?CTA\s*\]\]/i;
+    const RESOURCE_RE = /\[\[\s*RESOURCE\s*:\s*([a-z0-9_-]+)\s*\]\]/i;
+
     const flushMarkers = async (final = false) => {
-      const escIdx = buffer.indexOf("[[ESCALATE]]");
-      if (escIdx !== -1) {
-        const before = buffer.slice(0, escIdx);
+      const escMatch = buffer.match(ESCALATE_RE);
+      if (escMatch && escMatch.index !== undefined) {
+        const before = buffer.slice(0, escMatch.index);
         if (before) await write({ type: "text", delta: before });
-        buffer = buffer.slice(escIdx + "[[ESCALATE]]".length);
+        buffer = buffer.slice(escMatch.index + escMatch[0].length);
         if (!escalated) {
           escalated = true;
           await write({ type: "escalate" });
         }
       }
-      const ctaIdx = buffer.indexOf("[[CALL_CTA]]");
-      if (ctaIdx !== -1) {
-        const before = buffer.slice(0, ctaIdx);
+      const ctaMatch = buffer.match(CALL_CTA_RE);
+      if (ctaMatch && ctaMatch.index !== undefined) {
+        const before = buffer.slice(0, ctaMatch.index);
         if (before) await write({ type: "text", delta: before });
-        buffer = buffer.slice(ctaIdx + "[[CALL_CTA]]".length);
+        buffer = buffer.slice(ctaMatch.index + ctaMatch[0].length);
         if (!callCtaEmitted) {
           callCtaEmitted = true;
           await write({ type: "call_cta" });
         }
       }
-      const resMatch = buffer.match(/\[\[RESOURCE:([a-z0-9-]+)\]\]/i);
+      const resMatch = buffer.match(RESOURCE_RE);
       if (resMatch && resMatch.index !== undefined) {
         const before = buffer.slice(0, resMatch.index);
         if (before) await write({ type: "text", delta: before });
@@ -126,18 +142,32 @@ export async function POST(req: NextRequest) {
           await write({ type: "resource", slug: resMatch[1] });
         }
       }
+      // Determine how much of the remaining buffer is safe to flush as text.
+      // An unclosed `[[...` is held back during streaming (it may complete on
+      // the next chunk) and dropped entirely on final flush (model truncated
+      // mid-marker — don't leak `[[RESOURCE:foo` to the user as raw text).
       let safe = buffer.length;
-      if (!final) {
-        const lastOpen = buffer.lastIndexOf("[[");
-        if (lastOpen !== -1 && buffer.indexOf("]]", lastOpen) === -1) {
-          safe = lastOpen;
-        } else if (buffer.endsWith("[")) {
-          safe = buffer.length - 1;
-        }
+      let dropTail = false;
+
+      const lastOpen = buffer.lastIndexOf("[[");
+      if (lastOpen !== -1 && buffer.indexOf("]]", lastOpen) === -1) {
+        safe = lastOpen;
+        dropTail = final;
+      } else if (buffer.endsWith("[")) {
+        safe = buffer.length - 1;
+        dropTail = final;
       }
+
       if (safe > 0) {
         const out = buffer.slice(0, safe);
         if (out) await write({ type: "text", delta: out });
+      }
+      if (dropTail) {
+        if (buffer.length > safe) {
+          console.warn("[chat] dropping truncated marker tail:", buffer.slice(safe));
+        }
+        buffer = "";
+      } else {
         buffer = buffer.slice(safe);
       }
     };
@@ -193,6 +223,11 @@ type StreamHandle = {
   iterator: AsyncIterable<string>;
 };
 
+/** Per-provider time budget to receive the first token. Beyond this we give up
+ * and try the next provider. Prevents hangs when an SDK is internally retrying
+ * with a long backoff (e.g. Groq's 10-minute retry-after on TPD limits). */
+const FIRST_CHUNK_TIMEOUT_MS = 7000;
+
 async function openStreamWithFallback(args: {
   providers: ProviderId[];
   messages: ChatMsg[];
@@ -213,9 +248,10 @@ async function openStreamWithFallback(args: {
         geminiKey: args.geminiKey,
         groqKey: args.groqKey,
       });
-      // Peek the first chunk — if creation succeeded but the first iteration
-      // throws (rate limit, model unavailable), we still want to fall back.
-      const peeked = await peekFirstChunk(handle.iterator);
+      const peeked = await peekFirstChunkWithTimeout(
+        handle.iterator,
+        FIRST_CHUNK_TIMEOUT_MS,
+      );
       if (!peeked) continue; // empty stream — try next provider
       return { providerId, iterator: peeked };
     } catch (err) {
@@ -225,28 +261,38 @@ async function openStreamWithFallback(args: {
   return null;
 }
 
-/** Reads the first chunk; returns an iterator that yields it then the rest. */
-async function peekFirstChunk(iter: AsyncIterable<string>): Promise<AsyncIterable<string> | null> {
+/** Reads the first chunk under a time budget; returns an iterator that yields
+ * the first chunk then the rest. Throws if the budget elapses. */
+async function peekFirstChunkWithTimeout(
+  iter: AsyncIterable<string>,
+  timeoutMs: number,
+): Promise<AsyncIterable<string> | null> {
   const it = iter[Symbol.asyncIterator]();
-  let first: IteratorResult<string>;
-  try {
-    first = await it.next();
-  } catch (err) {
-    throw err;
-  }
-  if (first.done) return null;
-  if (!first.value) {
-    // Empty first chunk — keep looking for a real one before committing.
-    let next: IteratorResult<string>;
-    try {
-      next = await it.next();
-    } catch (err) {
-      throw err;
+
+  const peek = (async () => {
+    const first = await it.next();
+    if (first.done) return null;
+    if (!first.value) {
+      const next = await it.next();
+      if (next.done) return null;
+      return wrap(next.value, it);
     }
-    if (next.done) return null;
-    return wrap(next.value, it);
+    return wrap(first.value, it);
+  })();
+
+  let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutHandle = setTimeout(
+      () => reject(new Error(`first-chunk timeout after ${timeoutMs}ms`)),
+      timeoutMs,
+    );
+  });
+
+  try {
+    return await Promise.race([peek, timeout]);
+  } finally {
+    if (timeoutHandle) clearTimeout(timeoutHandle);
   }
-  return wrap(first.value, it);
 }
 
 function wrap(first: string, rest: AsyncIterator<string>): AsyncIterable<string> {
@@ -305,7 +351,31 @@ async function openGeminiStream(args: {
     config: {
       systemInstruction: args.systemPrompt,
       temperature: 0.6,
-      maxOutputTokens: 600,
+      maxOutputTokens: 800,
+      // Lyons is an electrical-safety chatbot — talking about sparks, hot
+      // panels, and downed lines is the whole point. Default Gemini safety
+      // filtering on DANGEROUS_CONTENT trips on those topics and truncates
+      // mid-stream, leaving the user with half a sentence. Disable that
+      // category. Other categories (harassment, hate, sexual) stay on the
+      // default to catch real abuse.
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        },
+      ],
     },
   });
   return {
@@ -327,11 +397,14 @@ async function openGroqStream(args: {
   messages: ChatMsg[];
   systemPrompt: string;
 }): Promise<{ iterator: AsyncIterable<string> }> {
-  const client = new Groq({ apiKey: args.apiKey });
+  // maxRetries: 0 — on rate-limit (429) the SDK would otherwise wait through
+  // the server-suggested retry-after, which can be many minutes. We'd rather
+  // fail fast and let the chain move to the next provider.
+  const client = new Groq({ apiKey: args.apiKey, maxRetries: 0 });
   const stream = await client.chat.completions.create({
     model: "llama-3.3-70b-versatile",
     stream: true,
-    max_tokens: 600,
+    max_tokens: 800,
     temperature: 0.6,
     messages: [
       { role: "system", content: args.systemPrompt },
