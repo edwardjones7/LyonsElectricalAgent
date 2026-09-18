@@ -21,7 +21,7 @@ const CATEGORIES: Category[] = [
   {
     key: "emergency",
     title: "24/7 Emergency",
-    blurb: "Power loss, sparks, storm damage, anything that can&rsquo;t wait. A master electrician answers, day or night.",
+    blurb: "Power loss, sparks, storm damage, anything that can’t wait. A master electrician answers, day or night.",
     icon: <Zap className="w-5 h-5" />,
     imageSlug: "emergency",
     serviceSlugs: ["emergency"],

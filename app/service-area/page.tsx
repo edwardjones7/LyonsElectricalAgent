@@ -17,7 +17,7 @@ export default function ServiceAreaPage() {
       <PageHero
         eyebrow="Service area"
         title="Across South Jersey, into PA & DE."
-        blurb={`Headquartered in ${LYONS.hq} and serving over ${totalTowns} cities and towns. If your town isn&rsquo;t listed, call us — we probably still come out.`}
+        blurb={`Headquartered in ${LYONS.hq} and serving over ${totalTowns} cities and towns. If your town isn’t listed, call us — we probably still come out.`}
       >
         <ZipCheck />
       </PageHero>

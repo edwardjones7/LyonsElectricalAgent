@@ -50,7 +50,7 @@ export default function EmergencyPage() {
       <PageHero
         eyebrow="24/7 emergency service"
         title="When it can&rsquo;t wait, call now."
-        blurb={`A master electrician picks up the phone — ${LYONS.hours.toLowerCase()}. Often we resolve the issue with you on the line at no cost. When we can&rsquo;t, a truck is on the way.`}
+        blurb={`A master electrician picks up the phone — ${LYONS.hours.toLowerCase()}. Often we resolve the issue with you on the line at no cost. When we can’t, a truck is on the way.`}
         variant="dark"
       >
         <a
