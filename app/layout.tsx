@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Fraunces, Big_Shoulders_Display } from "next/font/google";
+import { Inter, Fraunces, Big_Shoulders } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -19,7 +19,7 @@ const fraunces = Fraunces({
   axes: ["opsz", "SOFT"],
 });
 
-const bigShoulders = Big_Shoulders_Display({
+const bigShoulders = Big_Shoulders({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-industrial",
